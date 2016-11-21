@@ -47,7 +47,6 @@ class TutorialApplication : public BaseApplication
     int scoreCount;
 
     virtual void createScene(void);
-    virtual void createCamera();
     virtual bool frameRenderingQueued(const Ogre::FrameEvent&);
     virtual void createViewports();
     virtual void gameStep(const Ogre::FrameEvent& fe);

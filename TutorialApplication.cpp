@@ -66,14 +66,6 @@ TutorialApplication::~TutorialApplication(void)
 {
 }
 
-void TutorialApplication::createCamera()
-{
-  mCamera = mSceneMgr->createCamera("PlayerCam");
-  mCamera->setPosition(Ogre::Vector3(500, -20, 900));
-  mCamera->setNearClipDistance(5);
-  mCameraMan = new OgreBites::SdkCameraMan(mCamera);
-}
-
 void TutorialApplication::createViewports()
 {
   Ogre::Viewport* vp = mWindow->addViewport(mCamera);
@@ -93,7 +85,7 @@ void TutorialApplication::startBullet()
   broadphase = new btDbvtBroadphase();
   solver = new btSequentialImpulseConstraintSolver();
   dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
-  dynamicsWorld->setGravity(btVector3(0, 0, 0));
+  dynamicsWorld->setGravity(btVector3(0, -1, 0));
 
 
 
@@ -118,7 +110,7 @@ void TutorialApplication::startBullet()
   dynamicsWorld->addRigidBody(floorRigidBody);
 
   runMotionState = 
-      new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), btVector3(0,0,0)));
+      new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), btVector3(0,0,-5000)));
   btScalar ballMass = 3;
   btVector3 ballInertia(0, 0, 0);
   runShape->calculateLocalInertia(ballMass, ballInertia);
@@ -226,14 +218,13 @@ void TutorialApplication::createScene(void)
   mDir = Ogre::Vector3(initX, initY, initZ);
   btVector3 ballVel = btVector3(initX, initY, initZ);
   ballVel *= maxSpeed/ballVel.length();
-  runRigidBody->setLinearVelocity(btVector3(0, 0, -50));
+  //runRigidBody->setLinearVelocity(btVector3(0, 0, -50));
   //runRigidBody->applyCentralImpulse(btVector3(20*initX, 20*initY, 20*initZ));
   // Initialize the position of the ball
   mPos = Ogre::Vector3::ZERO;
   // Ambient light set in RGB
   mSceneMgr->setAmbientLight(Ogre::ColourValue(0.5, 0.5, 0.5));
 
-  dynamicsWorld->setGravity(btVector3(0, -1, 0));
 
   // Create an entity that is the mesh to be displayed
   runEnt = mSceneMgr->createEntity("mySphere", Ogre::SceneManager::PT_CUBE);
@@ -244,12 +235,12 @@ void TutorialApplication::createScene(void)
   runNode->attachObject(runEnt);
   runNode->setScale(0.2, 0.8, 0.2);
   // Create the ground
-  Ogre::Plane plane(Ogre::Vector3::UNIT_Y, -41);
+  Ogre::Plane plane(Ogre::Vector3::UNIT_Y, 0);
   Ogre::MeshManager::getSingleton().createPlane(
       "ground",
       Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
       plane,
-      1500, 1500, 20, 20,
+      400, 10000, 20, 20,
       true,
       1, 5, 5,
       Ogre::Vector3::UNIT_Z);
@@ -290,6 +281,8 @@ void TutorialApplication::createScene(void)
 void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
 
   mPos = runNode->getPosition();
+  
+  mCamera->setPosition(mPos + Ogre::Vector3(0, 100, -500));
 
   //so you dont accidentally get a trillion points at once
   if(pointTimer > 0) pointTimer -= fe.timeSinceLastFrame;
