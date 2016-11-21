@@ -1,0 +1,16 @@
+Yuanjie Li's Assignment 1 Description
+
+Implemented Functionality:
+Box room (4 walls, floor, ceiling): All walls are one-directional meshes
+  using the Examples/Rockwall mesh provided by Ogre.  Code generating these
+  walls were based off of the code to generate the floor in Tutorial 1 from
+  the Ogre website.
+Ball: Moving in a pseudo-random direction, the ball (using an Ogre's head as
+  a mesh) bounces around the room.  The head is only visible in the +y axis
+  direction because it is also a one-directional mesh.  This mesh was taken
+  from the Ogre website.  This ball casts a shadow in the blue spotlight.
+Spotlight: Blue spotlight shines on one edge of the room.  Code generating
+  this spotlight was borrowed from the Ogre tutorial on their website.
+Camera Controls: The user can move the camera with the mouse and WASD keys.
+  This code was borrowed from the Ogre tutorial on their website.
+
