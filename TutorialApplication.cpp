@@ -97,7 +97,6 @@ void TutorialApplication::startBullet()
   startTransform.setIdentity();
   btScalar massive(1.f);
   startTransform.setOrigin(btVector3(0, 20, 0));
-  //createRigidBody(massive, startTransform, runShape, btVector4(0,0,1,1));
 
   floorMotionState = new btDefaultMotionState(
       btTransform(btQuaternion(0,0,0,1), btVector3(0,0,0)));
@@ -202,7 +201,6 @@ void TutorialApplication::createScene(void)
   int initX = 0;
   int initY = 0;
   int initZ = 0;
-  //mSpd = 50;
   pointMultiplier = 1;
 
   while (initX <= 1 ) {
@@ -251,30 +249,6 @@ void TutorialApplication::createScene(void)
   groundEntity->setMaterialName("Examples/GrassFloor");
   mSceneMgr->setShadowTechnique(Ogre::SHADOWTYPE_STENCIL_ADDITIVE);
 
-  // Create round paddle
-  Ogre::ManualObject* paddle = mSceneMgr->createManualObject("paddle");
-  mRadius = 300;
-  float const accuracy = 35;
-  paddle->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_STRIP);
-  // Go around the circle joining points at intervals = to Pi/accuracy.
-  unsigned point_index = 0;
-  for (float theta = 0; theta <= 2 * Ogre::Math::PI;
-      theta += Ogre::Math::PI / accuracy) {
-    paddle->position(mRadius * cos(theta), mRadius * sin(theta), 0);
-    paddle->index(point_index++);
-  }
-  for (float theta = 0; theta <= 2 * Ogre::Math::PI;
-      theta += Ogre::Math::PI / accuracy) {
-    paddle->position(mRadius / 2 * cos(theta), mRadius / 2 * sin(theta), 0);
-    paddle->index(point_index++);
-  }
-  paddle->index(0); // Rejoins last point with first
-  paddle->end();
-  mPNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-  mPNode->attachObject(paddle);
-  // Set the initial state of the paddle
-  mPPos = Ogre::Vector3(0, 0, 750);
-
 }
 
 // Game loop code
@@ -293,8 +267,6 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
 
   btTransform trans;
   runRigidBody->getMotionState()->getWorldTransform(trans);
-
-  //std::cout << "sphere height: " << trans.getOrigin().getY() << std::endl;
 
   // Do inputs: mouseMoved() is below
   int initX = 0;
@@ -341,59 +313,30 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   btScalar bvy = ballVel.getY();
   btScalar bvz = ballVel.getZ();
 
-  // if (bvx < 20 && bvx > 0) {
-  //   bvx = 20;
-  // }
-  // else if (bvx > -20 && bvx < 0) {
-  //   bvx = -20;
-  // }
-  // if (bvy < 20 && bvy > 0) {
-  //   bvy = 20;
-  // }
-  // else if (bvy > -20 && bvy < 0) {
-  //   bvy = -20;
-  // }
-  // if (bvz < 20 && bvz > 0) {
-  //   bvz = 20;
-  // }
-  // else if (bvz > -20 && bvz < 0) {
-  //   bvz = -20;
-  // }
-
   if (trans.getOrigin().getX() > 720) {
-    //bvx = -20;
     runRigidBody->applyCentralImpulse(btVector3(-40, 0, 0));
     play_sound(1);
   }
   else if (trans.getOrigin().getX() < -720) {
-    //bvx = 20;
     runRigidBody->applyCentralImpulse(btVector3(40, 0, 0));
     play_sound(1);
   }
   if (trans.getOrigin().getY() > 720) {
-    //bvy = -20;
     runRigidBody->applyCentralImpulse(btVector3(0, -40, 0));
     play_sound(1);
   }
   else if (trans.getOrigin().getY() < -720) {
-    // bvy = 20;
     runRigidBody->applyCentralImpulse(btVector3(0, 40, 0));
     play_sound(1);
   }
   if (trans.getOrigin().getZ() < -720) {
-    //bvz = 20;
     runRigidBody->applyCentralImpulse(btVector3(0, 0, 40));
     play_sound(1);
   }
 
-  //runRigidBody->setLinearVelocity(btVector3(bvx, bvy, bvz));
-
+  // Displaying runner position
   std::cout << bvx << " " << bvy << " " << bvz << std::endl;
 
-  // Update position with new direction
-  // mPos = mPos + mDir * 50 * fe.timeSinceLastFrame;
-  // Ogre::Real move = 50 * fe.timeSinceLastFrame;
-  // runNode->translate(mDir * move);
   runNode->setPosition(
         Ogre::Vector3(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ()));
 }
@@ -521,10 +464,6 @@ void TutorialApplication::resetGame(){
   pointMultiplier = 1;
 }
 
-// Method called when mouse moves
-// bool TutorialApplication::mouseMoved(const OIS::MouseEvent& me) {
-//   // blank
-// }
 
 bool TutorialApplication::mousePressed(const OIS::MouseEvent &arg,
     OIS::MouseButtonID id) {
@@ -571,8 +510,6 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt){
   return true;
 }
 
-  //Need to inject timestamps to CEGUI System.
-  //CEGUI::System::getSingleton().injectTimePulse(evt.timeSinceLastFrame);
 
 void play_sound(int i) {
   if (play) {
@@ -598,7 +535,6 @@ void my_audio_callback(void *userdata, Uint8 *stream, int len) {
     return;
 
   len = ( len > audio_len ? audio_len : len );
-  //SDL_memcpy (stream, audio_pos, len);          // simply copy from one buffer into the other
   SDL_MixAudio(stream, audio_pos, len, SDL_MIX_MAXVOLUME);// mix from one buffer into another
 
   audio_len = 0;
@@ -624,7 +560,6 @@ extern "C" {
     {
       // Create application object
       TutorialApplication app;
-      //app.startBullet();
 
       try {
         app.go();
