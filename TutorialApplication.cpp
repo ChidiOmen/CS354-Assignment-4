@@ -26,6 +26,7 @@ http://paginas.fe.up.pt/~ruirodrig/wiki/doku.php?id=teaching:djco:ogre3d:ogretut
 #include <btBulletDynamicsCommon.h>
 #include <time.h>
 
+
 btDefaultCollisionConfiguration* collisionConfiguration;
 btCollisionDispatcher* dispatcher;
 btBroadphaseInterface* broadphase;
@@ -258,6 +259,7 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   mPos = runNode->getPosition();
   
   mCamera->setPosition(mPos + Ogre::Vector3(0, 100, -500));
+  //mCamera->lookAt(mPos);
 
   // detectCollisions();
 
@@ -299,9 +301,9 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
     gameEnd = false;
   }
  
-  mPos.x = trans.getOrigin().getX();
+  /*mPos.x = trans.getOrigin().getX();
   mPos.y = trans.getOrigin().getY();
-  mPos.z = trans.getOrigin().getZ();
+  mPos.z = trans.getOrigin().getZ();*/
 
   btVector3 runVel = runRigidBody->getLinearVelocity();
   btScalar rvx = runVel.getX();
@@ -389,7 +391,7 @@ void TutorialApplication::CEGUI_setup(){
 
   //Create text box : SOUND ON/OFF Right Click 
   CEGUI::Window *soundToggle = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","soundo");
-  soundToggle->setPosition(CEGUI::UVector2(CEGUI::UDim(0.4,0),CEGUI::UDim(0,0)));
+  soundToggle->setPosition(CEGUI::UVector2(CEGUI::UDim(0.8,0),CEGUI::UDim(0,0)));
   soundToggle->setSize(USize(UDim(0.25,0),UDim(0.043,0)));
   soundToggle->setText("Toggle Sound: Right Mouse");
   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(soundToggle);
@@ -400,6 +402,19 @@ void TutorialApplication::CEGUI_setup(){
   lifeIndicator->setSize(USize(UDim(0.07,0),UDim(0.04,0)));
   lifeIndicator->setText("LIVES:");
   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(lifeIndicator);
+
+  //Create text box for words to be typed
+  CEGUI::Window *typingWord1 = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","typingWord1");
+  typingWord1->setPosition(CEGUI::UVector2(CEGUI::UDim(0.15,0),CEGUI::UDim(0.25,0)));
+  typingWord1->setSize(USize(UDim(0.1,0),UDim(0.04,0)));
+  typingWord1->setText("JUMPING");
+  CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(typingWord1);
+
+  CEGUI::Window *typingWord2 = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","typingWord2");
+  typingWord2->setPosition(CEGUI::UVector2(CEGUI::UDim(0.75,0),CEGUI::UDim(0.25,0)));
+  typingWord2->setSize(USize(UDim(0.1,0),UDim(0.04,0)));
+  typingWord2->setText("RUN FASTER");
+  CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(typingWord2);
 }
 
 void TutorialApplication::updateScore(){
@@ -502,35 +517,26 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt){
 
   // Run game step
   TutorialApplication::gameStep(evt);
-  // Need to capture/update each device
-  mKeyboard->capture();
-  mMouse->capture();
+    // Need to capture/update each device
+    mKeyboard->capture();
+    mMouse->capture();
+    mTrayMgr->frameRenderingQueued(evt);
 
-  mTrayMgr->frameRenderingQueued(evt);
-
-  if (!mTrayMgr->isDialogVisible())
-  {
-    // If dialog isn't up, then update the camera
-    mCameraMan->frameRenderingQueued(evt);
-    // If details panel is visible, then update its contents
-    if (mDetailsPanel->isVisible())
+    if (!mTrayMgr->isDialogVisible())
     {
-      mDetailsPanel->setParamValue(0, Ogre::StringConverter::toString(
-            mCamera->getDerivedPosition().x));
-      mDetailsPanel->setParamValue(1, Ogre::StringConverter::toString(
-            mCamera->getDerivedPosition().y));
-      mDetailsPanel->setParamValue(2, Ogre::StringConverter::toString(
-            mCamera->getDerivedPosition().z));
-      mDetailsPanel->setParamValue(4, Ogre::StringConverter::toString(
-            mCamera->getDerivedOrientation().w));
-      mDetailsPanel->setParamValue(5, Ogre::StringConverter::toString(
-            mCamera->getDerivedOrientation().x));
-      mDetailsPanel->setParamValue(6, Ogre::StringConverter::toString(
-            mCamera->getDerivedOrientation().y));
-      mDetailsPanel->setParamValue(7, Ogre::StringConverter::toString(
-            mCamera->getDerivedOrientation().z));
+        mCameraMan->frameRenderingQueued(evt);   // If dialog isn't up, then update the camera
+        if (mDetailsPanel->isVisible())          // If details panel is visible, then update its contents
+        {
+            mDetailsPanel->setParamValue(0, Ogre::StringConverter::toString(mCamera->getDerivedPosition().x));
+            mDetailsPanel->setParamValue(1, Ogre::StringConverter::toString(mCamera->getDerivedPosition().y));
+            mDetailsPanel->setParamValue(2, Ogre::StringConverter::toString(mCamera->getDerivedPosition().z));
+            mDetailsPanel->setParamValue(4, Ogre::StringConverter::toString(mCamera->getDerivedOrientation().w));
+            mDetailsPanel->setParamValue(5, Ogre::StringConverter::toString(mCamera->getDerivedOrientation().x));
+            mDetailsPanel->setParamValue(6, Ogre::StringConverter::toString(mCamera->getDerivedOrientation().y));
+            mDetailsPanel->setParamValue(7, Ogre::StringConverter::toString(mCamera->getDerivedOrientation().z));
+        }
     }
-  }
+
   return true;
 }
 

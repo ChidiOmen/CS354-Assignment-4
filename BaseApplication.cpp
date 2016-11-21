@@ -394,7 +394,7 @@ bool BaseApplication::keyPressed( const OIS::KeyEvent &arg )
         mShutDown = true;
     }
 
-    mCameraMan->injectKeyDown(arg);
+    //mCameraMan->injectKeyDown(arg);
     CEGUI::GUIContext& context = CEGUI::System::getSingleton().getDefaultGUIContext();
     context.injectKeyDown((CEGUI::Key::Scan)arg.key);
     context.injectChar((CEGUI::Key::Scan)arg.text);
@@ -411,7 +411,7 @@ bool BaseApplication::keyReleased(const OIS::KeyEvent &arg)
 bool BaseApplication::mouseMoved(const OIS::MouseEvent &arg)
 {
     if (mTrayMgr->injectMouseMove(arg)) return true;
-    mCameraMan->injectMouseMove(arg);
+    //mCameraMan->injectMouseMove(arg);
     return true;
 }
 //---------------------------------------------------------------------------
