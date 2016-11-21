@@ -4,12 +4,12 @@ Filename:    TutorialApplication.cpp
 -----------------------------------------------------------------------------
 
 This source file is part of the
-___                 __    __ _ _    _
-/___\__ _ _ __ ___  / / /\ \ (_) | _(_)
-//  // _` | '__/ _ \ \ \/  \/ / | |/ / |
+   ___                 __    __ _ _    _
+  /___\__ _ _ __ ___  / / /\ \ (_) | _(_)
+ //  // _` | '__/ _ \ \ \/  \/ / | |/ / |
 / \_// (_| | | |  __/  \  /\  /| |   <| |
 \___/ \__, |_|  \___|   \/  \/ |_|_|\_\_|
-|___/
+      |___/
 Tutorial Framework (for Ogre 1.9)
 http://www.ogre3d.org/wiki/
 Sample code found at
@@ -42,6 +42,7 @@ btDefaultMotionState* runMotionState;
 btDefaultMotionState* floorMotionState;
 
 int maxSpeed = 40;
+bool fallTested = false;
 
 // Sound effect stuff
 bool success = true;
@@ -91,7 +92,7 @@ void TutorialApplication::startBullet()
 
 
   runShape = new btBoxShape(btVector3(20, 80, 20));
-  floorShape = new btStaticPlaneShape(btVector3(0, 1, 0), -40);
+  floorShape = new btStaticPlaneShape(btVector3(0, 1, 0), 0);
 
   btTransform startTransform;
   startTransform.setIdentity();
@@ -216,7 +217,7 @@ void TutorialApplication::createScene(void)
   mDir = Ogre::Vector3(initX, initY, initZ);
   btVector3 ballVel = btVector3(initX, initY, initZ);
   ballVel *= maxSpeed/ballVel.length();
-  //runRigidBody->setLinearVelocity(btVector3(0, 0, -50));
+  runRigidBody->setLinearVelocity(btVector3(0, 0, 40));
   //runRigidBody->applyCentralImpulse(btVector3(20*initX, 20*initY, 20*initZ));
   // Initialize the position of the ball
   mPos = Ogre::Vector3::ZERO;
@@ -238,7 +239,7 @@ void TutorialApplication::createScene(void)
       "ground",
       Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
       plane,
-      400, 10000, 20, 20,
+      400, 30000, 20, 20,
       true,
       1, 5, 5,
       Ogre::Vector3::UNIT_Z);
@@ -257,6 +258,8 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   mPos = runNode->getPosition();
   
   mCamera->setPosition(mPos + Ogre::Vector3(0, 100, -500));
+
+  // detectCollisions();
 
   //so you dont accidentally get a trillion points at once
   if(pointTimer > 0) pointTimer -= fe.timeSinceLastFrame;
@@ -300,42 +303,42 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   mPos.y = trans.getOrigin().getY();
   mPos.z = trans.getOrigin().getZ();
 
+  btVector3 runVel = runRigidBody->getLinearVelocity();
+  btScalar rvx = runVel.getX();
+  btScalar rvy = runVel.getY();
+  btScalar rvz = runVel.getZ();
 
-  btVector3 ballVel = runRigidBody->getLinearVelocity();
-  btScalar speed = ballVel.length();
-  if (speed > maxSpeed) {
-    ballVel *= maxSpeed/speed;
-    runRigidBody->setLinearVelocity(ballVel);
-  }
+  // if (trans.getOrigin().getX() > 720) {
+  //   runRigidBody->applyCentralImpulse(btVector3(-40, 0, 0));
+  //   play_sound(1);
+  // }
+  // else if (trans.getOrigin().getX() < -720) {
+  //   runRigidBody->applyCentralImpulse(btVector3(40, 0, 0));
+  //   play_sound(1);
+  // }
+  // if (trans.getOrigin().getY() > 720) {
+  //   runRigidBody->applyCentralImpulse(btVector3(0, -40, 0));
+  //   play_sound(1);
+  // }
+  // else if (trans.getOrigin().getY() < -720) {
+  //   runRigidBody->applyCentralImpulse(btVector3(0, 40, 0));
+  //   play_sound(1);
+  // }
+  // if (trans.getOrigin().getZ() < -720) {
+  //   runRigidBody->applyCentralImpulse(btVector3(0, 0, 40));
+  //   play_sound(1);
+  // }
 
-  ballVel = runRigidBody->getLinearVelocity();
-  btScalar bvx = ballVel.getX();
-  btScalar bvy = ballVel.getY();
-  btScalar bvz = ballVel.getZ();
-
-  if (trans.getOrigin().getX() > 720) {
-    runRigidBody->applyCentralImpulse(btVector3(-40, 0, 0));
-    play_sound(1);
-  }
-  else if (trans.getOrigin().getX() < -720) {
-    runRigidBody->applyCentralImpulse(btVector3(40, 0, 0));
-    play_sound(1);
-  }
-  if (trans.getOrigin().getY() > 720) {
-    runRigidBody->applyCentralImpulse(btVector3(0, -40, 0));
-    play_sound(1);
-  }
-  else if (trans.getOrigin().getY() < -720) {
-    runRigidBody->applyCentralImpulse(btVector3(0, 40, 0));
-    play_sound(1);
-  }
-  if (trans.getOrigin().getZ() < -720) {
-    runRigidBody->applyCentralImpulse(btVector3(0, 0, 40));
-    play_sound(1);
+  if(rvz < 40){
+    runRigidBody->setLinearVelocity(btVector3(rvx, rvy, 40));
   }
 
   // Displaying runner position
-  std::cout << bvx << " " << bvy << " " << bvz << std::endl;
+  std::cout << mPos.x << " " << mPos.y << " " << mPos.z << std::endl;
+  if (mPos.y < 21 && !fallTested) {
+    std::cout << "!! " << mPos.z << " !!" << std::endl;
+    fallTested = true;
+  }
 
   runNode->setPosition(
         Ogre::Vector3(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ()));
@@ -464,10 +467,31 @@ void TutorialApplication::resetGame(){
   pointMultiplier = 1;
 }
 
+void TutorialApplication::detectCollisions(){
+  btCollisionWorld* collWorld = dynamicsWorld->getCollisionWorld();
+  collWorld->performDiscreteCollisionDetection();
+  int numManifolds = collWorld->getDispatcher()->getNumManifolds();
+  for (int i = 0; i < numManifolds; i++) {
+    btPersistentManifold* perMan = collWorld->getDispatcher()->getManifoldByIndexInternal(i);
+    btCollisionObject* obA = const_cast<btCollisionObject*>(perMan->getBody0());
+    btCollisionObject* obB = const_cast<btCollisionObject*>(perMan->getBody1());
+    
+    if (runRigidBody == obA || runRigidBody == obB) {
+      std::cout << "runRigidBody ";
+    }
+    if (floorRigidBody == obA || floorRigidBody == obB) {
+      std::cout << "floorRigidBody ";
+    }
+    std::cout << std::endl;
+  }
+}
+
 
 bool TutorialApplication::mousePressed(const OIS::MouseEvent &arg,
     OIS::MouseButtonID id) {
-  // blank
+  if(runRigidBody) {
+    runRigidBody->setLinearVelocity(btVector3(0, 40, 0));
+  }
 }
 
 bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt){

@@ -53,6 +53,7 @@ class TutorialApplication : public BaseApplication
     virtual void CEGUI_setup();
     virtual void updateScore();
     virtual bool updateLives();
+    virtual void detectCollisions();
     virtual void resetGame();
     //virtual bool mouseMoved(const OIS::MouseEvent &me);
     virtual bool mousePressed(const OIS::MouseEvent &me,
