@@ -34,16 +34,16 @@ btSequentialImpulseConstraintSolver* solver;
 btDiscreteDynamicsWorld* dynamicsWorld;
 
 btCollisionShape* runShape;
-btCollisionShape* floorShape;
+btCollisionShape* floor2Shape;
+
 
 btRigidBody* runRigidBody;
-btRigidBody* floorRigidBody;
+btRigidBody* floor2RigidBody;
 
 btDefaultMotionState* runMotionState;
-btDefaultMotionState* floorMotionState;
+btDefaultMotionState* floor2MotionState;
 
 int maxSpeed = 40;
-bool fallTested = false;
 
 // Sound effect stuff
 bool success = true;
@@ -93,22 +93,22 @@ void TutorialApplication::startBullet()
 
 
   runShape = new btBoxShape(btVector3(20, 80, 20));
-  floorShape = new btStaticPlaneShape(btVector3(0, 1, 0), 0);
+  floor2Shape = new btBoxShape(btVector3(400, 1, 30000));
 
   btTransform startTransform;
   startTransform.setIdentity();
   btScalar massive(1.f);
   startTransform.setOrigin(btVector3(0, 20, 0));
 
-  floorMotionState = new btDefaultMotionState(
-      btTransform(btQuaternion(0,0,0,1), btVector3(0,0,0)));
-  btRigidBody::btRigidBodyConstructionInfo floorRigidBodyCI(
-      0, floorMotionState, floorShape, btVector3(0, 0, 0));
-  floorRigidBody = new btRigidBody(floorRigidBodyCI);
-  floorRigidBody->setRestitution(1.0);
-  floorRigidBody->setFriction(0);
-  floorRigidBody->setDamping(0, 0);
-  dynamicsWorld->addRigidBody(floorRigidBody);
+  floor2MotionState = new btDefaultMotionState(
+      btTransform(btQuaternion(0,0,0,1), btVector3(-200,0,-15000)));
+  btRigidBody::btRigidBodyConstructionInfo floor2RigidBodyCI(
+      0, floor2MotionState, floor2Shape, btVector3(0, 0, 0));
+  floor2RigidBody = new btRigidBody(floor2RigidBodyCI);
+  floor2RigidBody->setRestitution(1.0);
+  floor2RigidBody->setFriction(0);
+  floor2RigidBody->setDamping(0, 0);
+  dynamicsWorld->addRigidBody(floor2RigidBody);
 
   runMotionState = 
       new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), btVector3(0,0,-5000)));
@@ -121,6 +121,7 @@ void TutorialApplication::startBullet()
   runRigidBody->setRestitution(0);
   runRigidBody->setFriction(0);
   runRigidBody->setDamping(0, 0);
+  runRigidBody->setLinearFactor(btVector3(0, 1, 1));
   dynamicsWorld->addRigidBody(runRigidBody);
 
 
@@ -135,10 +136,10 @@ void TutorialApplication::endBullet()
     delete runRigidBody;
     delete runShape;
 
-    dynamicsWorld->removeRigidBody(floorRigidBody);
-    delete floorRigidBody->getMotionState();
-    delete floorRigidBody;
-    delete floorShape;
+    dynamicsWorld->removeRigidBody(floor2RigidBody);
+    delete floor2RigidBody->getMotionState();
+    delete floor2RigidBody;
+    delete floor2Shape;
 
     delete dynamicsWorld;
     delete solver;
@@ -219,7 +220,6 @@ void TutorialApplication::createScene(void)
   btVector3 ballVel = btVector3(initX, initY, initZ);
   ballVel *= maxSpeed/ballVel.length();
   runRigidBody->setLinearVelocity(btVector3(0, 0, 40));
-  //runRigidBody->applyCentralImpulse(btVector3(20*initX, 20*initY, 20*initZ));
   // Initialize the position of the ball
   mPos = Ogre::Vector3::ZERO;
   // Ambient light set in RGB
@@ -234,21 +234,22 @@ void TutorialApplication::createScene(void)
     Ogre::Vector3(0,0,0));
   runNode->attachObject(runEnt);
   runNode->setScale(0.2, 0.8, 0.2);
-  // Create the ground
+
+  // Create the floor
   Ogre::Plane plane(Ogre::Vector3::UNIT_Y, 0);
   Ogre::MeshManager::getSingleton().createPlane(
-      "ground",
+      "floor",
       Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
       plane,
       400, 30000, 20, 20,
       true,
       1, 5, 5,
       Ogre::Vector3::UNIT_Z);
-  Ogre::Entity* groundEntity = mSceneMgr->createEntity("ground");
+  Ogre::Entity* floorEntity = mSceneMgr->createEntity("floor");
   mSceneMgr->getRootSceneNode()->createChildSceneNode()
-    ->attachObject(groundEntity);
-  groundEntity->setCastShadows(false);
-  groundEntity->setMaterialName("Examples/GrassFloor");
+    ->attachObject(floorEntity);
+  floorEntity->setCastShadows(false);
+  floorEntity->setMaterialName("Examples/GrassFloor");
   mSceneMgr->setShadowTechnique(Ogre::SHADOWTYPE_STENCIL_ADDITIVE);
 
 }
@@ -260,8 +261,6 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   
   mCamera->setPosition(mPos + Ogre::Vector3(0, 100, -500));
   //mCamera->lookAt(mPos);
-
-  // detectCollisions();
 
   //so you dont accidentally get a trillion points at once
   if(pointTimer > 0) pointTimer -= fe.timeSinceLastFrame;
@@ -301,9 +300,9 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
     gameEnd = false;
   }
  
-  /*mPos.x = trans.getOrigin().getX();
+  mPos.x = trans.getOrigin().getX();
   mPos.y = trans.getOrigin().getY();
-  mPos.z = trans.getOrigin().getZ();*/
+  mPos.z = trans.getOrigin().getZ();
 
   btVector3 runVel = runRigidBody->getLinearVelocity();
   btScalar rvx = runVel.getX();
@@ -337,10 +336,6 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
 
   // Displaying runner position
   std::cout << mPos.x << " " << mPos.y << " " << mPos.z << std::endl;
-  if (mPos.y < 21 && !fallTested) {
-    std::cout << "!! " << mPos.z << " !!" << std::endl;
-    fallTested = true;
-  }
 
   runNode->setPosition(
         Ogre::Vector3(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ()));
@@ -482,30 +477,11 @@ void TutorialApplication::resetGame(){
   pointMultiplier = 1;
 }
 
-void TutorialApplication::detectCollisions(){
-  btCollisionWorld* collWorld = dynamicsWorld->getCollisionWorld();
-  collWorld->performDiscreteCollisionDetection();
-  int numManifolds = collWorld->getDispatcher()->getNumManifolds();
-  for (int i = 0; i < numManifolds; i++) {
-    btPersistentManifold* perMan = collWorld->getDispatcher()->getManifoldByIndexInternal(i);
-    btCollisionObject* obA = const_cast<btCollisionObject*>(perMan->getBody0());
-    btCollisionObject* obB = const_cast<btCollisionObject*>(perMan->getBody1());
-    
-    if (runRigidBody == obA || runRigidBody == obB) {
-      std::cout << "runRigidBody ";
-    }
-    if (floorRigidBody == obA || floorRigidBody == obB) {
-      std::cout << "floorRigidBody ";
-    }
-    std::cout << std::endl;
-  }
-}
-
 
 bool TutorialApplication::mousePressed(const OIS::MouseEvent &arg,
     OIS::MouseButtonID id) {
   if(runRigidBody) {
-    runRigidBody->setLinearVelocity(btVector3(0, 40, 0));
+    runRigidBody->setLinearVelocity(btVector3(0, 10, 0));
   }
 }
 
