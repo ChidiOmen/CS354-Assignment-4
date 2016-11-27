@@ -105,7 +105,7 @@ void TutorialApplication::startBullet()
   btRigidBody::btRigidBodyConstructionInfo floorRigidBodyCI(
       0, floorMotionState, floorShape, btVector3(0, 0, 0));
   floorRigidBody = new btRigidBody(floorRigidBodyCI);
-  floorRigidBody->setRestitution(1.0);
+  floorRigidBody->setRestitution(1);
   floorRigidBody->setFriction(0);
   floorRigidBody->setDamping(0, 0);
   dynamicsWorld->addRigidBody(floorRigidBody);
@@ -218,7 +218,7 @@ void TutorialApplication::createScene(void)
   mDir = Ogre::Vector3(initX, initY, initZ);
   btVector3 ballVel = btVector3(initX, initY, initZ);
   ballVel *= maxSpeed/ballVel.length();
-  runRigidBody->setLinearVelocity(btVector3(0, 0, 40));
+  runRigidBody->setLinearVelocity(btVector3(0, 0, 10));
   //runRigidBody->applyCentralImpulse(btVector3(20*initX, 20*initY, 20*initZ));
   // Initialize the position of the ball
   mPos = Ogre::Vector3::ZERO;
@@ -331,7 +331,7 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   //   play_sound(1);
   // }
 
-  if(rvz < 40){
+  if(rvz > 40){
     runRigidBody->setLinearVelocity(btVector3(rvx, rvy, 40));
   }
 
@@ -415,6 +415,7 @@ void TutorialApplication::CEGUI_setup(){
   typingWord2->setSize(USize(UDim(0.1,0),UDim(0.04,0)));
   typingWord2->setText("RUN FASTER");
   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(typingWord2);
+  typingWord2->setText("DRAGON");
 }
 
 void TutorialApplication::updateScore(){
@@ -505,7 +506,7 @@ void TutorialApplication::detectCollisions(){
 bool TutorialApplication::mousePressed(const OIS::MouseEvent &arg,
     OIS::MouseButtonID id) {
   if(runRigidBody) {
-    runRigidBody->setLinearVelocity(btVector3(0, 40, 0));
+    runRigidBody->setLinearVelocity(btVector3(0, 10, 0));
   }
 }
 
