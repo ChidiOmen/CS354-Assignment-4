@@ -308,7 +308,38 @@ bool BaseApplication::keyPressed( const OIS::KeyEvent &arg )
 {
     if (mTrayMgr->isDialogVisible()) return true;   // don't process any more keys if dialog is up
 
-    if (arg.key == OIS::KC_F)   // toggle visibility of advanced frame stats
+    switch (arg.key)  {
+    case OIS::KC_A:
+    {
+	userInput += 'A';
+	break;
+    }
+    case OIS::KC_D:
+    {
+	userInput += 'D';
+	break;
+    }
+    case OIS::KC_O:
+    {
+	userInput += 'O';
+	break;
+    }
+    case OIS::KC_G:
+    {
+	userInput += 'G';
+	break;
+    }
+    case OIS::KC_E:
+    {
+	userInput += 'E';
+	break;
+    }
+    case OIS::KC_BACK:
+    {
+        userInput = userInput.substr(0,userInput.size()-1);
+    }
+    }
+    /*if (arg.key == OIS::KC_F)   // toggle visibility of advanced frame stats
     {
         mTrayMgr->toggleAdvancedFrameStats();
     }
@@ -324,8 +355,8 @@ bool BaseApplication::keyPressed( const OIS::KeyEvent &arg )
             mTrayMgr->removeWidgetFromTray(mDetailsPanel);
             mDetailsPanel->hide();
         }
-    }
-    else if (arg.key == OIS::KC_T)   // cycle polygon rendering mode
+    }*/
+    /*else if (arg.key == OIS::KC_T)   // cycle polygon rendering mode
     {
         Ogre::String newVal;
         Ogre::TextureFilterOptions tfo;
@@ -357,8 +388,8 @@ bool BaseApplication::keyPressed( const OIS::KeyEvent &arg )
         Ogre::MaterialManager::getSingleton().setDefaultTextureFiltering(tfo);
         Ogre::MaterialManager::getSingleton().setDefaultAnisotropy(aniso);
         mDetailsPanel->setParamValue(9, newVal);
-    }
-    else if (arg.key == OIS::KC_R)   // cycle polygon rendering mode
+    }*/
+    /*else if (arg.key == OIS::KC_R)   // cycle polygon rendering mode
     {
         Ogre::String newVal;
         Ogre::PolygonMode pm;
@@ -380,8 +411,8 @@ bool BaseApplication::keyPressed( const OIS::KeyEvent &arg )
 
         mCamera->setPolygonMode(pm);
         mDetailsPanel->setParamValue(10, newVal);
-    }
-    else if(arg.key == OIS::KC_F5)   // refresh all textures
+    }*/
+    if(arg.key == OIS::KC_F5)   // refresh all textures
     {
         Ogre::TextureManager::getSingleton().reloadAll();
     }

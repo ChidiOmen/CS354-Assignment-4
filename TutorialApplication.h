@@ -45,6 +45,13 @@ class TutorialApplication : public BaseApplication
     Ogre::Real pointTimer;
     int pointMultiplier;
     int scoreCount;
+    int playerSpeed;
+    int gameTimer;
+
+    CEGUI::Window *typingWord1;
+    CEGUI::Window *typingWord2;
+    CEGUI::Window *typedWord1; 
+    CEGUI::Window *typedWord2; 
 
     virtual void createScene(void);
     virtual bool frameRenderingQueued(const Ogre::FrameEvent&);

@@ -45,6 +45,10 @@ http://www.ogre3d.org/wiki/
 
 #  include <SdkTrays.h>
 #  include <SdkCameraMan.h>
+
+#include <string>
+using namespace std;
+
 #endif
 
 #ifdef OGRE_STATIC_LIB
@@ -146,6 +150,10 @@ protected:
 
     //CEGUI
     CEGUI::OgreRenderer* mRenderer;
+
+    string userInput;
+    string speedWord;
+    string dodgeWord;
 
 #ifdef OGRE_STATIC_LIB
     Ogre::StaticPluginLoader m_StaticPluginLoader;

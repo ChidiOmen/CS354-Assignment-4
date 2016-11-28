@@ -219,12 +219,15 @@ void TutorialApplication::createScene(void)
   mDir = Ogre::Vector3(initX, initY, initZ);
   btVector3 ballVel = btVector3(initX, initY, initZ);
   ballVel *= maxSpeed/ballVel.length();
-  runRigidBody->setLinearVelocity(btVector3(0, 0, 40));
+  playerSpeed = 20;
+  runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
   // Initialize the position of the ball
   mPos = Ogre::Vector3::ZERO;
   // Ambient light set in RGB
   mSceneMgr->setAmbientLight(Ogre::ColourValue(0.5, 0.5, 0.5));
 
+  //Set overall timer
+  gameTimer = 0;
 
   // Create an entity that is the mesh to be displayed
   runEnt = mSceneMgr->createEntity("mySphere", Ogre::SceneManager::PT_CUBE);
@@ -268,6 +271,8 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   // Render
   // Step Simulation
   dynamicsWorld->stepSimulation(1 / 60.f, 10);
+ 
+  gameTimer += 1/60.f;
 
   btTransform trans;
   runRigidBody->getMotionState()->getWorldTransform(trans);
@@ -308,6 +313,22 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   btScalar rvx = runVel.getX();
   btScalar rvy = runVel.getY();
   btScalar rvz = runVel.getZ();
+
+  //Change User's Input
+  typedWord1->setText(userInput);
+  typedWord2->setText(userInput);
+  if(dodgeWord.compare(userInput)==0) {
+      userInput = "";
+      dodgeWord = "POOP";
+      typingWord1->setText(dodgeWord);
+  }
+  else if(speedWord.compare(userInput)==0) {
+      userInput = "";
+      speedWord = "POOP";
+      typingWord2->setText(speedWord);
+      playerSpeed *= 2;
+      runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
+  }
 
   // if (trans.getOrigin().getX() > 720) {
   //   runRigidBody->applyCentralImpulse(btVector3(-40, 0, 0));
@@ -362,11 +383,11 @@ void TutorialApplication::CEGUI_setup(){
   //Score keeping
   myImageWindow = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","ScoreKeeping");
   myImageWindow->setSize(USize(UDim(0.2,0),UDim(0.04,0)));
-  myImageWindow->setText("Score: 0");
+  myImageWindow->setText("Time: ");// + gameTimer);
   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(myImageWindow);
 
   //CEGUI Life indicator
-  lifeWindow1 = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/RadioButton","rLife1");
+  /*lifeWindow1 = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/RadioButton","rLife1");
   lifeWindow1->setPosition(CEGUI::UVector2(CEGUI::UDim(0.465, 0),CEGUI::UDim(0.95,0)));
   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(lifeWindow1);
   lifeWindow2 = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/RadioButton","rLife2");
@@ -374,7 +395,7 @@ void TutorialApplication::CEGUI_setup(){
   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(lifeWindow2);
   lifeWindow3 = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/RadioButton","rLife3");
   lifeWindow3->setPosition(CEGUI::UVector2(CEGUI::UDim(0.525, 0),CEGUI::UDim(0.95,0)));
-  CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(lifeWindow3);
+  CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(lifeWindow3);*/
 
   //Create Text box that says game over 
   goWindow = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","GAMEOBER");
@@ -392,25 +413,37 @@ void TutorialApplication::CEGUI_setup(){
   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(soundToggle);
 
   //Create text box to indicate lives 
-  CEGUI::Window *lifeIndicator = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","lifeIndicatorW");
+  /*CEGUI::Window *lifeIndicator = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","lifeIndicatorW");
   lifeIndicator->setPosition(CEGUI::UVector2(CEGUI::UDim(0.39,0),CEGUI::UDim(0.945,0)));
   lifeIndicator->setSize(USize(UDim(0.07,0),UDim(0.04,0)));
   lifeIndicator->setText("LIVES:");
-  CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(lifeIndicator);
+  CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(lifeIndicator);*/
 
   //Create text box for words to be typed
-  CEGUI::Window *typingWord1 = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","typingWord1");
+  typingWord1 = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","typingWord1");
   typingWord1->setPosition(CEGUI::UVector2(CEGUI::UDim(0.15,0),CEGUI::UDim(0.25,0)));
   typingWord1->setSize(USize(UDim(0.1,0),UDim(0.04,0)));
-  typingWord1->setText("JUMPING");
+  dodgeWord = "DODGE";
+  typingWord1->setText(dodgeWord);
   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(typingWord1);
 
-  CEGUI::Window *typingWord2 = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","typingWord2");
+  typingWord2 = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","typingWord2");
   typingWord2->setPosition(CEGUI::UVector2(CEGUI::UDim(0.75,0),CEGUI::UDim(0.25,0)));
   typingWord2->setSize(USize(UDim(0.1,0),UDim(0.04,0)));
-  typingWord2->setText("RUN FASTER");
+  speedWord = "RUN FASTER";
+  typingWord2->setText(speedWord);
   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(typingWord2);
-  typingWord2->setText("DRAGON");
+
+  //Create text box for user's typing
+  typedWord1 = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","typedWord1");
+  typedWord1->setPosition(CEGUI::UVector2(CEGUI::UDim(0.15,0),CEGUI::UDim(0.35,0)));
+  typedWord1->setSize(USize(UDim(0.1,0),UDim(0.04,0)));
+  CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(typedWord1);
+
+  typedWord2 = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","typedWord2");
+  typedWord2->setPosition(CEGUI::UVector2(CEGUI::UDim(0.75,0),CEGUI::UDim(0.35,0)));
+  typedWord2->setSize(USize(UDim(0.1,0),UDim(0.04,0)));
+  CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(typedWord2);
 }
 
 void TutorialApplication::updateScore(){
@@ -481,7 +514,7 @@ void TutorialApplication::resetGame(){
 
 bool TutorialApplication::mousePressed(const OIS::MouseEvent &arg,
     OIS::MouseButtonID id) {
-  if(runRigidBody) {
+  if(runRigidBody && mPos.y <= 81) {
     runRigidBody->setLinearVelocity(btVector3(0, 10, 0));
   }
 }
