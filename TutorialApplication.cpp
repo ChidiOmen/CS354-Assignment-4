@@ -38,15 +38,15 @@ btSequentialImpulseConstraintSolver* solver;
 btDiscreteDynamicsWorld* dynamicsWorld;
 
 btCollisionShape* runShape;
-btCollisionShape* floor2Shape;
+btCollisionShape* floorShape;
 btCollisionShape* blockShape;
 
 btRigidBody* runRigidBody;
-btRigidBody* floor2RigidBody;
+btRigidBody* floorRigidBody;
 btRigidBody* blockRigidBodies[15];
 
 btDefaultMotionState* runMotionState;
-btDefaultMotionState* floor2MotionState;
+btDefaultMotionState* floorMotionState;
 
 int maxSpeed = 40;
 
@@ -98,7 +98,7 @@ void TutorialApplication::startBullet()
 
 
   runShape = new btBoxShape(btVector3(20, 80, 20));
-  floor2Shape = new btBoxShape(btVector3(400, 1, 300000));
+  floorShape = new btBoxShape(btVector3(400, 1, 300000));
   blockShape = new btBoxShape(btVector3(400, 100, 1));
 
 
@@ -107,15 +107,15 @@ void TutorialApplication::startBullet()
   btScalar massive(1.f);
   startTransform.setOrigin(btVector3(0, 20, 0));
 
-  floor2MotionState = new btDefaultMotionState(
+  floorMotionState = new btDefaultMotionState(
       btTransform(btQuaternion(0,0,0,1), btVector3(-200,0,-15000)));
-  btRigidBody::btRigidBodyConstructionInfo floor2RigidBodyCI(
-      0, floor2MotionState, floor2Shape, btVector3(0, 0, 0));
-  floor2RigidBody = new btRigidBody(floor2RigidBodyCI);
-  floor2RigidBody->setRestitution(1.0);
-  floor2RigidBody->setFriction(0);
-  floor2RigidBody->setDamping(0, 0);
-  dynamicsWorld->addRigidBody(floor2RigidBody);
+  btRigidBody::btRigidBodyConstructionInfo floorRigidBodyCI(
+      0, floorMotionState, floorShape, btVector3(0, 0, 0));
+  floorRigidBody = new btRigidBody(floorRigidBodyCI);
+  floorRigidBody->setRestitution(1.0);
+  floorRigidBody->setFriction(0);
+  floorRigidBody->setDamping(0, 0);
+  dynamicsWorld->addRigidBody(floorRigidBody);
 
   runMotionState = 
       new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), btVector3(0,0,-5000)));
@@ -143,10 +143,10 @@ void TutorialApplication::endBullet()
     delete runRigidBody;
     delete runShape;
 
-    dynamicsWorld->removeRigidBody(floor2RigidBody);
-    delete floor2RigidBody->getMotionState();
-    delete floor2RigidBody;
-    delete floor2Shape;
+    dynamicsWorld->removeRigidBody(floorRigidBody);
+    delete floorRigidBody->getMotionState();
+    delete floorRigidBody;
+    delete floorShape;
 
     for (int i = 1; i < 15; i++) {
       btRigidBody* brb = blockRigidBodies[i];
@@ -309,9 +309,9 @@ void TutorialApplication::createScene(void)
 
       btDefaultMotionState* blockMotionState = new btDefaultMotionState(
       btTransform(btQuaternion(0,0,0,1), btVector3(-200,0,distance)));
-      btRigidBody::btRigidBodyConstructionInfo floor2RigidBodyCI(
+      btRigidBody::btRigidBodyConstructionInfo floorRigidBodyCI(
           0, blockMotionState, blockShape, btVector3(0, 0, 0));
-      blockRigidBodies[i] = new btRigidBody(floor2RigidBodyCI);
+      blockRigidBodies[i] = new btRigidBody(floorRigidBodyCI);
       blockRigidBodies[i]->setRestitution(1.0);
       blockRigidBodies[i]->setFriction(0);
       blockRigidBodies[i]->setDamping(0, 0);
@@ -424,9 +424,10 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   //   play_sound(1);
   // }
 
-  // if(rvz > 100){
-  //   runRigidBody->setLinearVelocity(btVector3(rvx, rvy, 100));
-  // }
+  if(rvz < 10){
+    runRigidBody->translate(btVector3(0, 0, -800));
+    runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
+  }
 
   // Displaying runner position
   std::cout << mPos.x << " " << mPos.y << " " << mPos.z << std::endl;
