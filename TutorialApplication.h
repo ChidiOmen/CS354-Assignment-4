@@ -45,6 +45,7 @@ class TutorialApplication : public BaseApplication
     Ogre::Real pointTimer;
     int pointMultiplier;
     int scoreCount;
+    Ogre::AnimationState* mAnimationState;
 
     virtual void createScene(void);
     virtual bool frameRenderingQueued(const Ogre::FrameEvent&);
@@ -53,7 +54,6 @@ class TutorialApplication : public BaseApplication
     virtual void CEGUI_setup();
     virtual void updateScore();
     virtual bool updateLives();
-    virtual void detectCollisions();
     virtual void resetGame();
     //virtual bool mouseMoved(const OIS::MouseEvent &me);
     virtual bool mousePressed(const OIS::MouseEvent &me,
