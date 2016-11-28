@@ -12,5 +12,8 @@ string wordList[] = {	"STRONG", "WEAK", "QUARREL", "BATTLE", "GIANT",
 			"ELECTRICITY", "CONFUSION", "PSYCHIC", "MAGIC", "ILLUSION"
 };
 
+string wordList_test[] = {	"CAT", "DOG", "PIG", "COW", "MOO", "TOP", "TOY"
+};
+
 
 #endif // #ifndef __Wordlist_h_

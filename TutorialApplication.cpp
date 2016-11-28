@@ -39,10 +39,11 @@ btDiscreteDynamicsWorld* dynamicsWorld;
 
 btCollisionShape* runShape;
 btCollisionShape* floor2Shape;
-
+btCollisionShape* blockShape;
 
 btRigidBody* runRigidBody;
 btRigidBody* floor2RigidBody;
+btRigidBody* blockRigidBodies[15];
 
 btDefaultMotionState* runMotionState;
 btDefaultMotionState* floor2MotionState;
@@ -98,6 +99,7 @@ void TutorialApplication::startBullet()
 
   runShape = new btBoxShape(btVector3(20, 80, 20));
   floor2Shape = new btBoxShape(btVector3(400, 1, 300000));
+  blockShape = new btBoxShape(btVector3(400, 100, 1));
 
 
   btTransform startTransform;
@@ -145,6 +147,16 @@ void TutorialApplication::endBullet()
     delete floor2RigidBody->getMotionState();
     delete floor2RigidBody;
     delete floor2Shape;
+
+    for (int i = 1; i < 15; i++) {
+      btRigidBody* brb = blockRigidBodies[i];
+      if(brb) {
+        dynamicsWorld -> removeRigidBody(brb);
+        delete brb->getMotionState();
+        delete brb;
+      }
+    }
+    delete blockShape;
 
     delete dynamicsWorld;
     delete solver;
@@ -278,7 +290,7 @@ void TutorialApplication::createScene(void)
 
   for(int i = 1; i < 15; i++) {
     int distance = rand() % 30000;
-    Ogre::Plane randomPlane(Ogre::Vector3::NEGATIVE_UNIT_Z, distance);
+    Ogre::Plane randomPlane(Ogre::Vector3::NEGATIVE_UNIT_Z, -1*distance);
 
     Ogre::MeshManager::getSingleton().createPlane(
       "floor" + i,
@@ -294,6 +306,16 @@ void TutorialApplication::createScene(void)
       entity->setCastShadows(false);
       mSceneMgr->getRootSceneNode()->createChildSceneNode(Ogre::Vector3(0, 50, 0))
       ->attachObject(entity);
+
+      btDefaultMotionState* blockMotionState = new btDefaultMotionState(
+      btTransform(btQuaternion(0,0,0,1), btVector3(-200,0,distance)));
+      btRigidBody::btRigidBodyConstructionInfo floor2RigidBodyCI(
+          0, blockMotionState, blockShape, btVector3(0, 0, 0));
+      blockRigidBodies[i] = new btRigidBody(floor2RigidBodyCI);
+      blockRigidBodies[i]->setRestitution(1.0);
+      blockRigidBodies[i]->setFriction(0);
+      blockRigidBodies[i]->setDamping(0, 0);
+      dynamicsWorld->addRigidBody(blockRigidBodies[i]);
 
 
   }
@@ -366,7 +388,7 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   typedWord2->setText(userInput);
   if(dodgeWord.compare(userInput)==0) {
       userInput = "";
-      dodgeWord = wordList[rand()%30];
+      dodgeWord = wordList_test[rand()%7];
       typingWord1->setText(dodgeWord);
       if(runRigidBody && mPos.y <= 81) 
       	runRigidBody->setLinearVelocity(btVector3(0, 20, playerSpeed));
@@ -374,7 +396,7 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   }
   else if(speedWord.compare(userInput)==0) {
       userInput = "";
-      speedWord = wordList[rand()%30];
+      speedWord = wordList_test[rand()%7];
       typingWord2->setText(speedWord);
       playerSpeed *= 1.25;
       runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
@@ -402,12 +424,12 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   //   play_sound(1);
   // }
 
-  /*if(rvz > 100){
-    runRigidBody->setLinearVelocity(btVector3(rvx, rvy, 100));
-  }*/
+  // if(rvz > 100){
+  //   runRigidBody->setLinearVelocity(btVector3(rvx, rvy, 100));
+  // }
 
   // Displaying runner position
-  std::cout << rvz << std::endl;//mPos.x << " " << mPos.y << " " << mPos.z << std::endl;
+  std::cout << mPos.x << " " << mPos.y << " " << mPos.z << std::endl;
 
   runNode->setPosition(
         Ogre::Vector3(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ()));
