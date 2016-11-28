@@ -2,7 +2,11 @@
 
 # libtool - Provide generalized library-building support services.
 # Generated automatically by config.status (SampleApp) 0.1
+<<<<<<< HEAD
 # Libtool was configured on host nixon-in-china:
+=======
+# Libtool was configured on host madama-butterfly:
+>>>>>>> a5c6d8238fb2849cec6b0b6ead07bc5ce07db753
 # NOTE: Changes made to this file will be lost: look at ltmain.sh.
 #
 #   Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2005,
