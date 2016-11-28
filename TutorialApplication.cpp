@@ -26,6 +26,7 @@ http://paginas.fe.up.pt/~ruirodrig/wiki/doku.php?id=teaching:djco:ogre3d:ogretut
 #include <btBulletDynamicsCommon.h>
 #include <time.h>
 #include "BaseApplication.h"
+#include <ctime>
 #include <string>
 using namespace std;
 
@@ -224,6 +225,8 @@ void TutorialApplication::createScene(void)
   btVector3 ballVel = btVector3(initX, initY, initZ);
   ballVel *= maxSpeed/ballVel.length();
 
+  clock_t startTime = clock();
+  wordCount=0;
   playerSpeed = 20;
   runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
 
@@ -233,7 +236,7 @@ void TutorialApplication::createScene(void)
   mSceneMgr->setAmbientLight(Ogre::ColourValue(0.5, 0.5, 0.5));
 
   //Set overall timer
-  gameTimer = 0;
+  gameTimer = 1;
 
   // Create an entity that is the mesh to be displayed
   //runEnt = mSceneMgr->createEntity("mySphere", Ogre::SceneManager::PT_CUBE);
@@ -251,8 +254,6 @@ void TutorialApplication::createScene(void)
   mAnimationState = runEnt->getAnimationState("Walk");
   mAnimationState->setLoop(true);
   mAnimationState->setEnabled(true);
-
-
 
 
   // Create the floor
@@ -314,7 +315,11 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   // Step Simulation
   dynamicsWorld->stepSimulation(1 / 60.f, 10);
  
-  gameTimer += 1/60.f;
+  gameTimer = clock()/CLOCKS_PER_SEC;
+
+  myImageWindow->setText("Time: " + Ogre::StringConverter::toString(gameTimer) + " seconds");
+  wpmWindow->setText("Words: " + Ogre::StringConverter::toString(wordCount));
+  speedWindow->setText("Speed: " + Ogre::StringConverter::toString(rvz) + "m/s");
 
   btTransform trans;
   runRigidBody->getMotionState()->getWorldTransform(trans);
@@ -352,24 +357,28 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   mPos.z = trans.getOrigin().getZ();
 
   btVector3 runVel = runRigidBody->getLinearVelocity();
-  btScalar rvx = runVel.getX();
-  btScalar rvy = runVel.getY();
-  btScalar rvz = runVel.getZ();
+  rvx = runVel.getX();
+  rvy = runVel.getY();
+  rvz = runVel.getZ();
 
   //Change User's Input
   typedWord1->setText(userInput);
   typedWord2->setText(userInput);
   if(dodgeWord.compare(userInput)==0) {
       userInput = "";
-      dodgeWord = "POOP";
+      dodgeWord = wordList[rand()%30];
       typingWord1->setText(dodgeWord);
+      if(runRigidBody && mPos.y <= 81) 
+      	runRigidBody->setLinearVelocity(btVector3(0, 20, playerSpeed));
+      wordCount++;
   }
   else if(speedWord.compare(userInput)==0) {
       userInput = "";
-      speedWord = "POOP";
+      speedWord = wordList[rand()%30];
       typingWord2->setText(speedWord);
-      playerSpeed *= 2;
+      playerSpeed *= 1.25;
       runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
+      wordCount++;
   }
 
   // if (trans.getOrigin().getX() > 720) {
@@ -393,12 +402,12 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   //   play_sound(1);
   // }
 
-  if(rvz < 40){
-    runRigidBody->setLinearVelocity(btVector3(rvx, rvy, 40));
-  }
+  /*if(rvz > 100){
+    runRigidBody->setLinearVelocity(btVector3(rvx, rvy, 100));
+  }*/
 
   // Displaying runner position
-  std::cout << mPos.x << " " << mPos.y << " " << mPos.z << std::endl;
+  std::cout << rvz << std::endl;//mPos.x << " " << mPos.y << " " << mPos.z << std::endl;
 
   runNode->setPosition(
         Ogre::Vector3(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ()));
@@ -423,10 +432,23 @@ void TutorialApplication::CEGUI_setup(){
   CEGUI::System::getSingleton().getDefaultGUIContext().setRootWindow(sheet);
 
   //Score keeping
-  myImageWindow = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","ScoreKeeping");
+  myImageWindow = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","Time");
+  myImageWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0,0),CEGUI::UDim(0,0)));
   myImageWindow->setSize(USize(UDim(0.2,0),UDim(0.04,0)));
-  myImageWindow->setText("Time: ");// + gameTimer);
+  myImageWindow->setText("Time: " + Ogre::StringConverter::toString("0 seconds"));
   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(myImageWindow);
+  
+  wpmWindow = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","WordsPerMinute");
+  wpmWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0,0),CEGUI::UDim(0.04,0)));
+  wpmWindow->setSize(USize(UDim(0.2,0),UDim(0.04,0)));
+  wpmWindow->setText("Words: " + Ogre::StringConverter::toString(wordCount));
+  CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(wpmWindow);
+  
+  speedWindow = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","Speed");
+  speedWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0,0),CEGUI::UDim(0.08,0)));
+  speedWindow->setSize(USize(UDim(0.2,0),UDim(0.04,0)));
+  speedWindow->setText("Speed: " + Ogre::StringConverter::toString(rvz) + "m/s");
+  CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(speedWindow);
 
   //CEGUI Life indicator
   /*lifeWindow1 = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/RadioButton","rLife1");
@@ -556,9 +578,9 @@ void TutorialApplication::resetGame(){
 
 bool TutorialApplication::mousePressed(const OIS::MouseEvent &arg,
     OIS::MouseButtonID id) {
-  if(runRigidBody && mPos.y <= 81) {
+  /*if(runRigidBody && mPos.y <= 81) {
     runRigidBody->setLinearVelocity(btVector3(0, 10, 0));
-  }
+  }*/
 }
 
 bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt){

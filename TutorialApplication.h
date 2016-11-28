@@ -19,8 +19,10 @@ http://www.ogre3d.org/wiki/
 #define __TutorialApplication_h_
 
 #include "BaseApplication.h"
+#include "Wordlist.h"
 #include <string>
 #include <sstream>
+#include <btBulletDynamicsCommon.h>
 
 //---------------------------------------------------------------------------
 
@@ -34,6 +36,8 @@ class TutorialApplication : public BaseApplication
 
   protected:
     CEGUI::Window *myImageWindow;
+    CEGUI::Window *wpmWindow;
+    CEGUI::Window *speedWindow;
     CEGUI::Window *lifeWindow1;
     CEGUI::Window *lifeWindow2;
     CEGUI::Window *lifeWindow3;
@@ -45,6 +49,10 @@ class TutorialApplication : public BaseApplication
     Ogre::Real pointTimer;
     int pointMultiplier;
     int scoreCount;
+    int wordCount;
+    btScalar rvx;
+    btScalar rvy;
+    btScalar rvz;
 
     Ogre::AnimationState* mAnimationState;
 

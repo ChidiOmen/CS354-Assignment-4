@@ -195,23 +195,13 @@ distuninstallcheck_listfiles = find . -type f -print
 am__distuninstallcheck_listfiles = $(distuninstallcheck_listfiles) \
   | sed 's|^\./|$(prefix)/|' | grep -v '$(infodir)/dir$$'
 distcleancheck_listfiles = find . -type f -print
-<<<<<<< HEAD
-ACLOCAL = ${SHELL} /v/filer4b/v38q001/say339/cs354rApp/CS354-Assignment-4/missing aclocal-1.14
+ACLOCAL = ${SHELL} /u/alexyou/GameTech/cs354r_final/CS354-Assignment-4/missing aclocal-1.14
 AMTAR = $${TAR-tar}
 AM_DEFAULT_VERBOSITY = 1
 AR = ar
-AUTOCONF = ${SHELL} /v/filer4b/v38q001/say339/cs354rApp/CS354-Assignment-4/missing autoconf
-AUTOHEADER = ${SHELL} /v/filer4b/v38q001/say339/cs354rApp/CS354-Assignment-4/missing autoheader
-AUTOMAKE = ${SHELL} /v/filer4b/v38q001/say339/cs354rApp/CS354-Assignment-4/missing automake-1.14
-=======
-ACLOCAL = ${SHELL} /v/filer4b/v38q001/alexyou/GameTech/cs354r_final/CS354-Assignment-4/missing aclocal-1.14
-AMTAR = $${TAR-tar}
-AM_DEFAULT_VERBOSITY = 1
-AR = ar
-AUTOCONF = ${SHELL} /v/filer4b/v38q001/alexyou/GameTech/cs354r_final/CS354-Assignment-4/missing autoconf
-AUTOHEADER = ${SHELL} /v/filer4b/v38q001/alexyou/GameTech/cs354r_final/CS354-Assignment-4/missing autoheader
-AUTOMAKE = ${SHELL} /v/filer4b/v38q001/alexyou/GameTech/cs354r_final/CS354-Assignment-4/missing automake-1.14
->>>>>>> a5c6d8238fb2849cec6b0b6ead07bc5ce07db753
+AUTOCONF = ${SHELL} /u/alexyou/GameTech/cs354r_final/CS354-Assignment-4/missing autoconf
+AUTOHEADER = ${SHELL} /u/alexyou/GameTech/cs354r_final/CS354-Assignment-4/missing autoheader
+AUTOMAKE = ${SHELL} /u/alexyou/GameTech/cs354r_final/CS354-Assignment-4/missing automake-1.14
 AWK = gawk
 BULLET_CFLAGS = 
 BULLET_LIBS = 
@@ -254,11 +244,7 @@ LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LIPO = 
 LN_S = ln -s
 LTLIBOBJS = 
-<<<<<<< HEAD
-MAKEINFO = ${SHELL} /v/filer4b/v38q001/say339/cs354rApp/CS354-Assignment-4/missing makeinfo
-=======
-MAKEINFO = ${SHELL} /v/filer4b/v38q001/alexyou/GameTech/cs354r_final/CS354-Assignment-4/missing makeinfo
->>>>>>> a5c6d8238fb2849cec6b0b6ead07bc5ce07db753
+MAKEINFO = ${SHELL} /u/alexyou/GameTech/cs354r_final/CS354-Assignment-4/missing makeinfo
 MANIFEST_TOOL = :
 MKDIR_P = /bin/mkdir -p
 NM = /usr/bin/nm -B
@@ -288,17 +274,10 @@ SET_MAKE =
 SHELL = /bin/bash
 STRIP = strip
 VERSION = 0.1
-<<<<<<< HEAD
-abs_builddir = /v/filer4b/v38q001/say339/cs354rApp/CS354-Assignment-4
-abs_srcdir = /v/filer4b/v38q001/say339/cs354rApp/CS354-Assignment-4
-abs_top_builddir = /v/filer4b/v38q001/say339/cs354rApp/CS354-Assignment-4
-abs_top_srcdir = /v/filer4b/v38q001/say339/cs354rApp/CS354-Assignment-4
-=======
-abs_builddir = /v/filer4b/v38q001/alexyou/GameTech/cs354r_final/CS354-Assignment-4
-abs_srcdir = /v/filer4b/v38q001/alexyou/GameTech/cs354r_final/CS354-Assignment-4
-abs_top_builddir = /v/filer4b/v38q001/alexyou/GameTech/cs354r_final/CS354-Assignment-4
-abs_top_srcdir = /v/filer4b/v38q001/alexyou/GameTech/cs354r_final/CS354-Assignment-4
->>>>>>> a5c6d8238fb2849cec6b0b6ead07bc5ce07db753
+abs_builddir = /u/alexyou/GameTech/cs354r_final/CS354-Assignment-4
+abs_srcdir = /u/alexyou/GameTech/cs354r_final/CS354-Assignment-4
+abs_top_builddir = /u/alexyou/GameTech/cs354r_final/CS354-Assignment-4
+abs_top_srcdir = /u/alexyou/GameTech/cs354r_final/CS354-Assignment-4
 ac_ct_AR = ar
 ac_ct_CC = gcc
 ac_ct_CXX = g++
@@ -330,11 +309,7 @@ host_vendor = unknown
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-<<<<<<< HEAD
-install_sh = ${SHELL} /v/filer4b/v38q001/say339/cs354rApp/CS354-Assignment-4/install-sh
-=======
-install_sh = ${SHELL} /v/filer4b/v38q001/alexyou/GameTech/cs354r_final/CS354-Assignment-4/install-sh
->>>>>>> a5c6d8238fb2849cec6b0b6ead07bc5ce07db753
+install_sh = ${SHELL} /u/alexyou/GameTech/cs354r_final/CS354-Assignment-4/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -357,7 +332,7 @@ top_build_prefix =
 top_builddir = .
 top_srcdir = .
 ACLOCAL_AMFLAGS = -I m4
-noinst_HEADERS = BaseApplication.h TutorialApplication.h
+noinst_HEADERS = BaseApplication.h TutorialApplication.h Wordlist.h
 OgreApp_CPPFLAGS = -I$(top_srcdir)
 OgreApp_SOURCES = BaseApplication.cpp TutorialApplication.cpp
 OgreApp_CXXFLAGS = $(OGRE_CFLAGS) $(OIS_CFLAGS) $(CEGUI_CFLAGS) $(bullet_CFLAGS) $(sdl_CFLAGS)
