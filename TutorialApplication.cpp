@@ -430,7 +430,7 @@ void TutorialApplication::CEGUI_setup(){
   typingWord2 = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","typingWord2");
   typingWord2->setPosition(CEGUI::UVector2(CEGUI::UDim(0.75,0),CEGUI::UDim(0.25,0)));
   typingWord2->setSize(USize(UDim(0.1,0),UDim(0.04,0)));
-  speedWord = "RUN FASTER";
+  speedWord = "RUNFASTER";
   typingWord2->setText(speedWord);
   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(typingWord2);
 
