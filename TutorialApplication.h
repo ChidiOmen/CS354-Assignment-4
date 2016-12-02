@@ -54,6 +54,12 @@ class TutorialApplication : public BaseApplication
     btScalar rvy;
     btScalar rvz;
 
+
+	Ogre::SceneNode* blockNode;
+	Ogre::Entity* blockEntity;
+	btCollisionShape* blockShape;
+	btDefaultMotionState* blockMotionState;
+
     Ogre::AnimationState* mAnimationState;
 
     int playerSpeed;

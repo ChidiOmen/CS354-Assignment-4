@@ -92,13 +92,13 @@ void TutorialApplication::startBullet()
   broadphase = new btDbvtBroadphase();
   solver = new btSequentialImpulseConstraintSolver();
   dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
-  dynamicsWorld->setGravity(btVector3(0, -1, 0));
+  dynamicsWorld->setGravity(btVector3(0, -10, 0));
 
 
 
 
-  runShape = new btBoxShape(btVector3(20, 80, 20));
-  floorShape = new btBoxShape(btVector3(400, 1, 300000));
+  runShape = new btBoxShape(btVector3(20, 0, 20));
+  floorShape = new btBoxShape(btVector3(400, 1, 30000));
   blockShape = new btBoxShape(btVector3(400, 100, 1));
 
 
@@ -108,7 +108,7 @@ void TutorialApplication::startBullet()
   startTransform.setOrigin(btVector3(0, 20, 0));
 
   floorMotionState = new btDefaultMotionState(
-      btTransform(btQuaternion(0,0,0,1), btVector3(-200,0,-15000)));
+      btTransform(btQuaternion(0,0,0,1), btVector3(-200,0,14000)));
   btRigidBody::btRigidBodyConstructionInfo floorRigidBodyCI(
       0, floorMotionState, floorShape, btVector3(0, 0, 0));
   floorRigidBody = new btRigidBody(floorRigidBodyCI);
@@ -118,12 +118,12 @@ void TutorialApplication::startBullet()
   dynamicsWorld->addRigidBody(floorRigidBody);
 
   runMotionState = 
-      new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), btVector3(0,0,-5000)));
-  btScalar ballMass = 3;
-  btVector3 ballInertia(0, 0, 0);
-  runShape->calculateLocalInertia(ballMass, ballInertia);
-  btRigidBody::btRigidBodyConstructionInfo runRigidBodyCI(ballMass, runMotionState, 
-      runShape, ballInertia);
+      new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), btVector3(0,0,0)));
+  btScalar runMass = 3;
+  btVector3 runInertia(0, 0, 0);
+  runShape->calculateLocalInertia(runMass, runInertia);
+  btRigidBody::btRigidBodyConstructionInfo runRigidBodyCI(runMass, runMotionState, 
+      runShape, runInertia);
   runRigidBody = new btRigidBody(runRigidBodyCI);
   runRigidBody->setRestitution(0);
   runRigidBody->setFriction(0);
@@ -239,7 +239,7 @@ void TutorialApplication::createScene(void)
 
   clock_t startTime = clock();
   wordCount=0;
-  playerSpeed = 20;
+  playerSpeed = 35;
   runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
 
   // Initialize the position of the ball
@@ -274,13 +274,14 @@ void TutorialApplication::createScene(void)
       "floor",
       Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
       plane,
-      400, 300000, 20, 20,
+      400, 30000, 20, 20,
       true,
       1, 5, 5,
       Ogre::Vector3::UNIT_Z);
   Ogre::Entity* floorEntity = mSceneMgr->createEntity("floor");
-  mSceneMgr->getRootSceneNode()->createChildSceneNode()
-    ->attachObject(floorEntity);
+  Ogre::SceneNode* floorNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+  floorNode->attachObject(floorEntity);
+  floorNode->setPosition(0,0,14000);
   floorEntity->setCastShadows(false);
 
   floorEntity->setMaterialName("Examples/CloudySky");
@@ -288,8 +289,8 @@ void TutorialApplication::createScene(void)
 
   mSceneMgr->setShadowTechnique(Ogre::SHADOWTYPE_STENCIL_ADDITIVE);
 
-  for(int i = 1; i < 15; i++) {
-    int distance = rand() % 30000;
+  for(int i = 0; i < 2; i++) {
+    /*int distance = rand() % 30000;
     Ogre::Plane randomPlane(Ogre::Vector3::NEGATIVE_UNIT_Z, -1*distance);
 
     Ogre::MeshManager::getSingleton().createPlane(
@@ -301,7 +302,6 @@ void TutorialApplication::createScene(void)
       1, 5, 5,
       Ogre::Vector3::UNIT_X);
       Ogre::Entity* entity = mSceneMgr->createEntity("floor" + i);
-      //entity = mSceneMgr->createEntity("floor" + i);
       entity->setMaterialName("Examples/BumpyMetal");
       entity->setCastShadows(false);
       mSceneMgr->getRootSceneNode()->createChildSceneNode(Ogre::Vector3(0, 50, 0))
@@ -312,12 +312,25 @@ void TutorialApplication::createScene(void)
       btRigidBody::btRigidBodyConstructionInfo floorRigidBodyCI(
           0, blockMotionState, blockShape, btVector3(0, 0, 0));
       blockRigidBodies[i] = new btRigidBody(floorRigidBodyCI);
-      blockRigidBodies[i]->setRestitution(1.0);
+      blockRigidBodies[i]->setRestitution(0.8);
       blockRigidBodies[i]->setFriction(0);
       blockRigidBodies[i]->setDamping(0, 0);
-      dynamicsWorld->addRigidBody(blockRigidBodies[i]);
+      dynamicsWorld->addRigidBody(blockRigidBodies[i]);*/
+	blockEntity = mSceneMgr->createEntity("block"+i, "Wood.mesh");
+  	blockEntity->setCastShadows(true);
+  	blockNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+	blockNode->setPosition(Ogre::Vector3(0,25,1000+(5000*i)));
+	blockNode->attachObject(blockEntity);
+	blockNode->setScale(75,25,50);
 
-
+	blockShape = new btBoxShape(btVector3(75,25,50));
+	blockMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), btVector3(0,25,1000+(5000*i))));
+	btRigidBody::btRigidBodyConstructionInfo blockRigidBodyCI(0, blockMotionState, blockShape, btVector3(0,0,0));
+	blockRigidBodies[i] = new btRigidBody(blockRigidBodyCI);
+	blockRigidBodies[i]->setRestitution(1);
+	blockRigidBodies[i]->setFriction(0);
+	blockRigidBodies[i]->setDamping(0,0);
+	dynamicsWorld->addRigidBody(blockRigidBodies[i]);
   }
 
 }
@@ -336,12 +349,22 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   // Render
   // Step Simulation
   dynamicsWorld->stepSimulation(1 / 60.f, 10);
- 
-  gameTimer = clock()/CLOCKS_PER_SEC;
+
+  if(mPos.z>=27000) {
+     //playerSpeed*=0.995;
+       playerSpeed=0;
+     runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
+  }
+  else gameTimer = clock()/CLOCKS_PER_SEC;
 
   myImageWindow->setText("Time: " + Ogre::StringConverter::toString(gameTimer) + " seconds");
-  wpmWindow->setText("Words: " + Ogre::StringConverter::toString(wordCount));
+  wpmWindow->setText("WPM: " + Ogre::StringConverter::toString(wordCount*60/gameTimer) + " Words Per Minute");
   speedWindow->setText("Speed: " + Ogre::StringConverter::toString(rvz) + "m/s");
+
+  if(rvz==0) {
+      mAnimationState->setEnabled(false);
+  }
+  else mAnimationState->setEnabled(true);
 
   btTransform trans;
   runRigidBody->getMotionState()->getWorldTransform(trans);
@@ -388,15 +411,19 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   typedWord2->setText(userInput);
   if(dodgeWord.compare(userInput)==0) {
       userInput = "";
-      dodgeWord = wordList_test[rand()%7];
+      do {
+           dodgeWord = wordList_test[rand()%7];
+      }while(speedWord.compare(dodgeWord)==0);
       typingWord1->setText(dodgeWord);
-      if(runRigidBody && mPos.y <= 81) 
-      	runRigidBody->setLinearVelocity(btVector3(0, 20, playerSpeed));
+      if(runRigidBody && mPos.y <= 1) 
+      	runRigidBody->setLinearVelocity(btVector3(0, 50, playerSpeed));
       wordCount++;
   }
   else if(speedWord.compare(userInput)==0) {
       userInput = "";
-      speedWord = wordList_test[rand()%7];
+      do {
+          speedWord = wordList_test[rand()%7];
+      }while(speedWord.compare(dodgeWord)==0);
       typingWord2->setText(speedWord);
       playerSpeed *= 1.25;
       runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
@@ -424,10 +451,13 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   //   play_sound(1);
   // }
 
-  if(rvz < 10){
-    runRigidBody->translate(btVector3(0, 0, -800));
+  /*if(rvz < 10){
+    runRigidBody->translate(btVector3(0, 0, -1000));
+    playerSpeed /= 2;
+    if(playerSpeed<20)
+	playerSpeed=20;
     runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
-  }
+  }*/
 
   // Displaying runner position
   std::cout << mPos.x << " " << mPos.y << " " << mPos.z << std::endl;
@@ -517,7 +547,7 @@ void TutorialApplication::CEGUI_setup(){
   typingWord2 = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","typingWord2");
   typingWord2->setPosition(CEGUI::UVector2(CEGUI::UDim(0.75,0),CEGUI::UDim(0.25,0)));
   typingWord2->setSize(USize(UDim(0.1,0),UDim(0.04,0)));
-  speedWord = "RUNFASTER";
+  speedWord = "FASTER";
   typingWord2->setText(speedWord);
   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(typingWord2);
 
@@ -601,9 +631,6 @@ void TutorialApplication::resetGame(){
 
 bool TutorialApplication::mousePressed(const OIS::MouseEvent &arg,
     OIS::MouseButtonID id) {
-  /*if(runRigidBody && mPos.y <= 81) {
-    runRigidBody->setLinearVelocity(btVector3(0, 10, 0));
-  }*/
 }
 
 bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt){
