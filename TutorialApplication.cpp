@@ -18,13 +18,13 @@ http://paginas.fe.up.pt/~ruirodrig/wiki/doku.php?id=teaching:djco:ogre3d:ogretut
 */
 
 /*
-g++ -pthread -I/lusr/opt/ogre-1.9/include -I/lusr/opt/ogre-1.9/include/OGRE 
--I/usr/include/ois -I/lusr/opt/cegui-0.8.4/include/cegui-0 -I/usr/include/bullet
- -D_GNU_SOURCE=1 -D_REENTRANT -I/usr/include/SDL -g -O2 -o OgreApp 
- OgreApp-BaseApplication.o OgreApp-TutorialApplication.o  -lOgreOverlay 
- -lboost_system -L/lusr/opt/ogre-1.9/lib -lOIS -L/lusr/opt/cegui-0.8.4/lib 
- -lCEGUIOgreRenderer-0 -lOgreMain -lpthread -lCEGUIBase-0 -lBulletSoftBody 
- -lBulletDynamics -lBulletCollision -lLinearMath -lSDL -pthread -Wl,-rpath 
+g++ -pthread -I/lusr/opt/ogre-1.9/include -I/lusr/opt/ogre-1.9/include/OGRE
+ -I/usr/include/ois -I/lusr/opt/cegui-0.8.4/include/cegui-0 -I/usr/include/bullet
+ -D_GNU_SOURCE=1 -D_REENTRANT -I/usr/include/SDL -g -O2
+ -o OgreApp OgreApp-BaseApplication.o OgreApp-TutorialApplication.o  -lOgreOverlay
+ -lboost_system -L/lusr/opt/ogre-1.9/lib -lOIS -L/lusr/opt/cegui-0.8.4/lib
+ -lCEGUIOgreRenderer-0 -lOgreMain -lpthread -lCEGUIBase-0 -lBulletSoftBody
+ -lBulletDynamics -lBulletCollision -lLinearMath -lSDL -pthread -Wl,-rpath
  -Wl,/lusr/lib/cegui-0.8
 */
 
@@ -41,6 +41,7 @@ g++ -pthread -I/lusr/opt/ogre-1.9/include -I/lusr/opt/ogre-1.9/include/OGRE
 #include <string>
 using namespace std;
 
+const int numBlocks = 2;
 
 btDefaultCollisionConfiguration* collisionConfiguration;
 btCollisionDispatcher* dispatcher;
@@ -54,12 +55,13 @@ btCollisionShape* blockShape;
 
 btRigidBody* runRigidBody;
 btRigidBody* floorRigidBody;
-btRigidBody* blockRigidBodies[15];
+btRigidBody* blockRigidBodies[numBlocks];
 
 btDefaultMotionState* runMotionState;
 btDefaultMotionState* floorMotionState;
 
 int maxSpeed = 40;
+int numTokens = 0;
 
 // Sound effect stuff
 bool success = true;
@@ -159,7 +161,7 @@ void TutorialApplication::endBullet()
     delete floorRigidBody;
     delete floorShape;
 
-    for (int i = 1; i < 15; i++) {
+    for (int i = 0; i < numBlocks; i++) {
       btRigidBody* brb = blockRigidBodies[i];
       if(brb) {
         dynamicsWorld -> removeRigidBody(brb);
@@ -302,7 +304,7 @@ void TutorialApplication::createScene(void)
 
   mSceneMgr->setShadowTechnique(Ogre::SHADOWTYPE_STENCIL_ADDITIVE);
 
-  for(int i = 0; i < 2; i++) {
+  for(int i = 0; i < numBlocks; i++) {
     /*int distance = rand() % 30000;
     Ogre::Plane randomPlane(Ogre::Vector3::NEGATIVE_UNIT_Z, -1*distance);
 
@@ -333,12 +335,12 @@ void TutorialApplication::createScene(void)
   	blockEntity = mSceneMgr->createEntity("block"+i, "Wood.mesh");
   	blockEntity->setCastShadows(true);
   	blockNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-  	blockNode->setPosition(Ogre::Vector3(0,25,1000+(5000*i)));
+  	blockNode->setPosition(Ogre::Vector3(0,25,2000+(5000*i)));
   	blockNode->attachObject(blockEntity);
   	blockNode->setScale(75,25,50);
 
   	blockShape = new btBoxShape(btVector3(75,25,50));
-  	blockMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), btVector3(0,25,1000+(5000*i))));
+  	blockMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), btVector3(0,25,2000+(5000*i))));
   	btRigidBody::btRigidBodyConstructionInfo blockRigidBodyCI(0, blockMotionState, blockShape, btVector3(0,0,0));
   	blockRigidBodies[i] = new btRigidBody(blockRigidBodyCI);
   	blockRigidBodies[i]->setRestitution(1);
@@ -433,8 +435,26 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
            dodgeWord = wordList_test[rand()%7];
       }while(speedWord.compare(dodgeWord)==0);
       typingWord1->setText(dodgeWord);
-      if(runRigidBody && mPos.y <= 1) 
-      	runRigidBody->setLinearVelocity(btVector3(0, 50, playerSpeed));
+      if(runRigidBody && mPos.y <= 1) {
+        if (numTokens < 5) {
+          numTokens++;
+          if (numTokens == 1) {
+            lifeWindow1->setVisible(true);
+          }
+          else if (numTokens == 2) {
+            lifeWindow2->setVisible(true);
+          }
+          else if (numTokens == 3) {
+            lifeWindow3->setVisible(true);
+          }
+          else if (numTokens == 4) {
+            lifeWindow4->setVisible(true);
+          }
+          else if (numTokens == 5) {
+            lifeWindow5->setVisible(true);
+          }
+        }
+      }
       wordCount++;
   }
   else if(speedWord.compare(userInput)==0) {
@@ -448,27 +468,6 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
       wordCount++;
   }
 
-  // if (trans.getOrigin().getX() > 720) {
-  //   runRigidBody->applyCentralImpulse(btVector3(-40, 0, 0));
-  //   play_sound(1);
-  // }
-  // else if (trans.getOrigin().getX() < -720) {
-  //   runRigidBody->applyCentralImpulse(btVector3(40, 0, 0));
-  //   play_sound(1);
-  // }
-  // if (trans.getOrigin().getY() > 720) {
-  //   runRigidBody->applyCentralImpulse(btVector3(0, -40, 0));
-  //   play_sound(1);
-  // }
-  // else if (trans.getOrigin().getY() < -720) {
-  //   runRigidBody->applyCentralImpulse(btVector3(0, 40, 0));
-  //   play_sound(1);
-  // }
-  // if (trans.getOrigin().getZ() < -720) {
-  //   runRigidBody->applyCentralImpulse(btVector3(0, 0, 40));
-  //   play_sound(1);
-  // }
-
   /*if(rvz < 10){
     runRigidBody->translate(btVector3(0, 0, -1000));
     playerSpeed /= 2;
@@ -479,6 +478,9 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
 
   // Displaying runner position
   std::cout << mPos.x << " " << mPos.y << " " << mPos.z << std::endl;
+
+  // Displaying runner velocity
+  std::cout << rvx << " " << rvy << " " << rvz << std::endl;
 
   runNode->setPosition(
         Ogre::Vector3(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ()));
@@ -522,7 +524,7 @@ void TutorialApplication::CEGUI_setup(){
   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(speedWindow);
 
   //CEGUI Life indicator
-  /*lifeWindow1 = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/RadioButton","rLife1");
+  lifeWindow1 = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/RadioButton","rLife1");
   lifeWindow1->setPosition(CEGUI::UVector2(CEGUI::UDim(0.465, 0),CEGUI::UDim(0.95,0)));
   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(lifeWindow1);
   lifeWindow2 = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/RadioButton","rLife2");
@@ -530,10 +532,23 @@ void TutorialApplication::CEGUI_setup(){
   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(lifeWindow2);
   lifeWindow3 = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/RadioButton","rLife3");
   lifeWindow3->setPosition(CEGUI::UVector2(CEGUI::UDim(0.525, 0),CEGUI::UDim(0.95,0)));
-  CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(lifeWindow3);*/
+  CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(lifeWindow3);
+  lifeWindow4 = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/RadioButton","rLife4");
+  lifeWindow4->setPosition(CEGUI::UVector2(CEGUI::UDim(0.555, 0),CEGUI::UDim(0.95,0)));
+  CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(lifeWindow4);
+  lifeWindow5 = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/RadioButton","rLife5");
+  lifeWindow5->setPosition(CEGUI::UVector2(CEGUI::UDim(0.585, 0),CEGUI::UDim(0.95,0)));
+  CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(lifeWindow5);
+
+  lifeWindow1->setVisible(false);
+  lifeWindow2->setVisible(false);
+  lifeWindow3->setVisible(false);
+  lifeWindow4->setVisible(false);
+  lifeWindow5->setVisible(false);
+
 
   //Create Text box that says game over 
-  goWindow = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","GAMEOBER");
+  goWindow = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","GAMEOVER");
   goWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0.4,0),CEGUI::UDim(0.4,0)));
   goWindow->setSize(USize(UDim(0.2,0),UDim(0.1,0)));
   goWindow->setText("        GAME OVER\n Press Enter to reset\n         Esc to Quit");
@@ -548,11 +563,11 @@ void TutorialApplication::CEGUI_setup(){
   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(soundToggle);
 
   //Create text box to indicate lives 
-  /*CEGUI::Window *lifeIndicator = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","lifeIndicatorW");
+  CEGUI::Window *lifeIndicator = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","lifeIndicatorW");
   lifeIndicator->setPosition(CEGUI::UVector2(CEGUI::UDim(0.39,0),CEGUI::UDim(0.945,0)));
   lifeIndicator->setSize(USize(UDim(0.07,0),UDim(0.04,0)));
-  lifeIndicator->setText("LIVES:");
-  CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(lifeIndicator);*/
+  lifeIndicator->setText("TOKENS:");
+  CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(lifeIndicator);
 
   //Create text box for words to be typed
   typingWord1 = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","typingWord1");
@@ -635,9 +650,11 @@ void TutorialApplication::resetGame(){
   using namespace CEGUI;
   using namespace std;
   lifecounter = 3;
-  lifeWindow1->setVisible(true);
-  lifeWindow2->setVisible(true);
-  lifeWindow3->setVisible(true);
+  lifeWindow1->setVisible(false);
+  lifeWindow2->setVisible(false);
+  lifeWindow3->setVisible(false);
+  lifeWindow4->setVisible(false);
+  lifeWindow5->setVisible(false);
   goWindow->setVisible(false);
   iscore = 0;
   scoreCount = 0;
