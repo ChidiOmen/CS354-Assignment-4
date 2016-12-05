@@ -1,0 +1,22 @@
+
+// Pad genrated by blender2ogre 0.6.0
+
+material Pad 
+{
+    receive_shadows on 
+
+    technique
+    {
+        pass Pad
+        {
+            ambient 0.0 0.746005654335022 0.800000011920929 0.4
+            diffuse 0.0 0.596804532361098 0.6400000190734865 0.4
+            specular 1 1 1 1 20
+
+            scene_blend alpha_blend
+            alpha_rejection greater 64
+            depth_write off
+
+        }
+    }
+}

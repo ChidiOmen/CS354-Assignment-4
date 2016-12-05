@@ -1,0 +1,37 @@
+<scene export_time="1475258338.7403696" exported_by="sidhants" formatVersion="1.0.1" previous_export_time="1475258053.482833" >
+  <nodes >
+    <node name="Ball" >
+      <position y="4.377994" z="-0.000000" x="0.000000" />
+      <rotation qz="-0.000000" qx="0.000000" qy="0.000000" qw="1.000000" />
+      <scale y="1.000000" z="1.000000" x="1.000000" />
+      <game >
+        <sensors />
+        <actuators />
+      </game>
+      <entity ghost="False" mass="1.0" damping_trans="0.03999999910593033" mass_radius="1.0" velocity_min="0.0" lock_rot_x="False" lock_rot_y="False" inertia_tensor="0.4000000059604645" friction_y="1.0" friction_z="1.0" actor="False" lock_trans_z="False" friction_x="1.0" physics_type="STATIC" velocity_max="0.0" meshFile="Sphere.mesh" name="Sphere" lock_trans_y="False" anisotropic_friction="False" lock_rot_z="False" lock_trans_x="False" damping_rot="0.10000000149011612" />
+    </node>
+    <node name="Cube" >
+      <position y="0.000000" z="-0.000000" x="0.000000" />
+      <rotation qz="-0.000000" qx="0.000000" qy="0.000000" qw="1.000000" />
+      <scale y="8.977666" z="8.977666" x="8.977666" />
+      <game >
+        <sensors />
+        <actuators />
+      </game>
+      <entity ghost="False" mass="1.0" damping_trans="0.02539999969303608" mass_radius="1.0" velocity_min="0.0" lock_rot_x="False" lock_rot_y="False" inertia_tensor="0.4000000059604645" friction_y="1.0" friction_z="1.0" actor="False" lock_trans_z="False" friction_x="1.0" physics_type="STATIC" velocity_max="0.0" meshFile="Cube.mesh" name="Cube" lock_trans_y="False" anisotropic_friction="False" lock_rot_z="False" lock_trans_x="False" damping_rot="0.1589999943971634" />
+    </node>
+  </nodes>
+  <externals >
+    <item type="material" >
+      <file name="/u/sidhants/blender/test/Material.001.material" />
+    </item>
+    <item type="material" >
+      <file name="/u/sidhants/blender/test/Material.material" />
+    </item>
+  </externals>
+  <environment >
+    <colourDiffuse r="0.05087608844041824" g="0.05087608844041824" b="0.05087608844041824" />
+    <colourBackground r="0.05087608844041824" g="0.05087608844041824" b="0.05087608844041824" />
+    <colourAmbient r="0.0" g="0.0" b="0.0" />
+  </environment>
+</scene>

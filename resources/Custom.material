@@ -1,0 +1,29 @@
+material Custom/Grid
+ {
+    technique
+    {
+       pass
+        {
+          texture_unit
+          {
+            texture grid.png
+            scale 1 1
+            // this means that the texture will be tiled 10 times (1/10 = 0.1)
+          }
+       }   
+    }
+ }
+ 
+material Custom/MarBall
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture marball.png
+			}
+		}
+	}
+}
