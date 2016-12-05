@@ -24,6 +24,9 @@ http://www.ogre3d.org/wiki/
 #include <sstream>
 #include <btBulletDynamicsCommon.h>
 
+
+#include "Block.h"
+
 //---------------------------------------------------------------------------
 
 class TutorialApplication : public BaseApplication
@@ -53,14 +56,17 @@ class TutorialApplication : public BaseApplication
     btScalar rvx;
     btScalar rvy;
     btScalar rvz;
+    bool multiplayer;
 
 
+	std::vector<Block*> blocks;
 	Ogre::SceneNode* blockNode;
 	Ogre::Entity* blockEntity;
 	btCollisionShape* blockShape;
 	btDefaultMotionState* blockMotionState;
 
-    Ogre::AnimationState* mAnimationState;
+    Ogre::AnimationState* mAnimationState1;
+    Ogre::AnimationState* mAnimationState2;
 
     int playerSpeed;
     int gameTimer;
