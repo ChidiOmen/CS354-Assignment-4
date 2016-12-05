@@ -44,6 +44,7 @@ g++ -pthread -I/lusr/opt/ogre-1.9/include -I/lusr/opt/ogre-1.9/include/OGRE
 using namespace std;
 
 const int numBlocks = 5;
+const int trackLen = 14000;
 
 btDefaultCollisionConfiguration* collisionConfiguration;
 btCollisionDispatcher* dispatcher;
@@ -113,7 +114,7 @@ void TutorialApplication::startBullet()
 
 
   runShape = new btBoxShape(btVector3(20, 0, 20));
-  floorShape = new btBoxShape(btVector3(400, 1, 30000));
+  floorShape = new btBoxShape(btVector3(400, 1, trackLen*2+2000));
   blockShape = new btBoxShape(btVector3(400, 100, 1));
 
   btTransform startTransform;
@@ -122,7 +123,7 @@ void TutorialApplication::startBullet()
   startTransform.setOrigin(btVector3(0, 0, 0));
 
   floorMotionState = new btDefaultMotionState(
-      btTransform(btQuaternion(0,0,0,1), btVector3(-200,0,14000)));
+      btTransform(btQuaternion(0,0,0,1), btVector3(-200,0,trackLen)));
   btRigidBody::btRigidBodyConstructionInfo floorRigidBodyCI(
       0, floorMotionState, floorShape, btVector3(0, 0, 0));
   floorRigidBody = new btRigidBody(floorRigidBodyCI);
@@ -309,7 +310,7 @@ void TutorialApplication::createScene(void)
   Ogre::Entity* floorEntity = mSceneMgr->createEntity("floor");
   Ogre::SceneNode* floorNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
   floorNode->attachObject(floorEntity);
-  floorNode->setPosition(0,0,14000);
+  floorNode->setPosition(0,0,trackLen);
   floorEntity->setCastShadows(false);
 
   floorEntity->setMaterialName("Examples/CloudySky");
@@ -490,8 +491,24 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
       runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
   }
 //Dodge function
-	if(numTokens!=0 && obstNum<=numBlocks&& ((int)(blocks.at(obstNum)->getZ() - mPos.z) < playerSpeed*4)) {
+	int distance = ((int)(blocks.at(obstNum)->getZ() - mPos.z));
+	if(numTokens!=0 && obstNum<=numBlocks && distance < playerSpeed*4) {
       		runRigidBody->setLinearVelocity(btVector3(0, 50, playerSpeed));
+          	if (numTokens == 1) {
+          	  lifeWindow1->setVisible(false);
+          	}
+          	else if (numTokens == 2) {
+          	  lifeWindow2->setVisible(false);
+          	}
+          	else if (numTokens == 3) {
+         	   lifeWindow3->setVisible(false);
+          	}
+         	else if (numTokens == 4) {
+         	  lifeWindow4->setVisible(false);
+         	}
+         	else if (numTokens == 5) {
+         	  lifeWindow5->setVisible(false);
+         	}
 		numTokens--;
 		if(obstNum!=numBlocks-1)
 			obstNum++;
