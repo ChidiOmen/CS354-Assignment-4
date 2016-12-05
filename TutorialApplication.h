@@ -4,9 +4,9 @@ Filename:    TutorialApplication.h
 -----------------------------------------------------------------------------
 
 This source file is part of the
-___                 __    __ _ _    _
-/___\__ _ _ __ ___  / / /\ \ (_) | _(_)
-//  // _` | '__/ _ \ \ \/  \/ / | |/ / |
+   ___                 __    __ _ _    _
+  /___\__ _ _ __ ___  / / /\ \ (_) | _(_)
+ //  // _` | '__/ _ \ \ \/  \/ / | |/ / |
 / \_// (_| | | |  __/  \  /\  /| |   <| |
 \___/ \__, |_|  \___|   \/  \/ |_|_|\_\_|
 |___/
@@ -44,6 +44,8 @@ class TutorialApplication : public BaseApplication
     CEGUI::Window *lifeWindow1;
     CEGUI::Window *lifeWindow2;
     CEGUI::Window *lifeWindow3;
+    CEGUI::Window *lifeWindow4;
+    CEGUI::Window *lifeWindow5;
     CEGUI::Window *goWindow;
     bool gameEnd;
     int iscore;
