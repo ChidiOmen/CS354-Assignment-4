@@ -17,6 +17,17 @@ http://paginas.fe.up.pt/~ruirodrig/wiki/doku.php?id=teaching:djco:ogre3d:ogretut
 -----------------------------------------------------------------------------
 */
 
+/*
+g++ -pthread -I/lusr/opt/ogre-1.9/include -I/lusr/opt/ogre-1.9/include/OGRE 
+-I/usr/include/ois -I/lusr/opt/cegui-0.8.4/include/cegui-0 -I/usr/include/bullet
+ -D_GNU_SOURCE=1 -D_REENTRANT -I/usr/include/SDL -g -O2 -o OgreApp 
+ OgreApp-BaseApplication.o OgreApp-TutorialApplication.o  -lOgreOverlay 
+ -lboost_system -L/lusr/opt/ogre-1.9/lib -lOIS -L/lusr/opt/cegui-0.8.4/lib 
+ -lCEGUIOgreRenderer-0 -lOgreMain -lpthread -lCEGUIBase-0 -lBulletSoftBody 
+ -lBulletDynamics -lBulletCollision -lLinearMath -lSDL -pthread -Wl,-rpath 
+ -Wl,/lusr/lib/cegui-0.8
+*/
+
 #include "TutorialApplication.h"
 #include <OgreManualObject.h>
 #include <unistd.h>
@@ -235,7 +246,9 @@ void TutorialApplication::createScene(void)
 
   mDir = Ogre::Vector3(initX, initY, initZ);
   btVector3 ballVel = btVector3(initX, initY, initZ);
-  ballVel *= maxSpeed/ballVel.length();
+  if (ballVel.length() != 0) {
+    ballVel *= maxSpeed/ballVel.length();
+  }
 
   clock_t startTime = clock();
   wordCount=0;
@@ -294,43 +307,44 @@ void TutorialApplication::createScene(void)
     Ogre::Plane randomPlane(Ogre::Vector3::NEGATIVE_UNIT_Z, -1*distance);
 
     Ogre::MeshManager::getSingleton().createPlane(
-      "floor" + i,
-      Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-      randomPlane,
-      100, 400, 20, 20,
-      true,
-      1, 5, 5,
-      Ogre::Vector3::UNIT_X);
-      Ogre::Entity* entity = mSceneMgr->createEntity("floor" + i);
-      entity->setMaterialName("Examples/BumpyMetal");
-      entity->setCastShadows(false);
-      mSceneMgr->getRootSceneNode()->createChildSceneNode(Ogre::Vector3(0, 50, 0))
-      ->attachObject(entity);
+    "floor" + i,
+    Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+    randomPlane,
+    100, 400, 20, 20,
+    true,
+    1, 5, 5,
+    Ogre::Vector3::UNIT_X);
+    Ogre::Entity* entity = mSceneMgr->createEntity("floor" + i);
+    entity->setMaterialName("Examples/BumpyMetal");
+    entity->setCastShadows(false);
+    mSceneMgr->getRootSceneNode()->createChildSceneNode(Ogre::Vector3(0, 50, 0))
+    ->attachObject(entity);
 
-      btDefaultMotionState* blockMotionState = new btDefaultMotionState(
-      btTransform(btQuaternion(0,0,0,1), btVector3(-200,0,distance)));
-      btRigidBody::btRigidBodyConstructionInfo floorRigidBodyCI(
-          0, blockMotionState, blockShape, btVector3(0, 0, 0));
-      blockRigidBodies[i] = new btRigidBody(floorRigidBodyCI);
-      blockRigidBodies[i]->setRestitution(0.8);
-      blockRigidBodies[i]->setFriction(0);
-      blockRigidBodies[i]->setDamping(0, 0);
-      dynamicsWorld->addRigidBody(blockRigidBodies[i]);*/
-	blockEntity = mSceneMgr->createEntity("block"+i, "Wood.mesh");
+    btDefaultMotionState* blockMotionState = new btDefaultMotionState(
+    btTransform(btQuaternion(0,0,0,1), btVector3(-200,0,distance)));
+    btRigidBody::btRigidBodyConstructionInfo floorRigidBodyCI(
+        0, blockMotionState, blockShape, btVector3(0, 0, 0));
+    blockRigidBodies[i] = new btRigidBody(floorRigidBodyCI);
+    blockRigidBodies[i]->setRestitution(0.8);
+    blockRigidBodies[i]->setFriction(0);
+    blockRigidBodies[i]->setDamping(0, 0);
+    dynamicsWorld->addRigidBody(blockRigidBodies[i]);*/
+
+  	blockEntity = mSceneMgr->createEntity("block"+i, "Wood.mesh");
   	blockEntity->setCastShadows(true);
   	blockNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-	blockNode->setPosition(Ogre::Vector3(0,25,1000+(5000*i)));
-	blockNode->attachObject(blockEntity);
-	blockNode->setScale(75,25,50);
+  	blockNode->setPosition(Ogre::Vector3(0,25,1000+(5000*i)));
+  	blockNode->attachObject(blockEntity);
+  	blockNode->setScale(75,25,50);
 
-	blockShape = new btBoxShape(btVector3(75,25,50));
-	blockMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), btVector3(0,25,1000+(5000*i))));
-	btRigidBody::btRigidBodyConstructionInfo blockRigidBodyCI(0, blockMotionState, blockShape, btVector3(0,0,0));
-	blockRigidBodies[i] = new btRigidBody(blockRigidBodyCI);
-	blockRigidBodies[i]->setRestitution(1);
-	blockRigidBodies[i]->setFriction(0);
-	blockRigidBodies[i]->setDamping(0,0);
-	dynamicsWorld->addRigidBody(blockRigidBodies[i]);
+  	blockShape = new btBoxShape(btVector3(75,25,50));
+  	blockMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), btVector3(0,25,1000+(5000*i))));
+  	btRigidBody::btRigidBodyConstructionInfo blockRigidBodyCI(0, blockMotionState, blockShape, btVector3(0,0,0));
+  	blockRigidBodies[i] = new btRigidBody(blockRigidBodyCI);
+  	blockRigidBodies[i]->setRestitution(1);
+  	blockRigidBodies[i]->setFriction(0);
+  	blockRigidBodies[i]->setDamping(0,0);
+  	dynamicsWorld->addRigidBody(blockRigidBodies[i]);
   }
 
 }
@@ -355,10 +369,14 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
        playerSpeed=0;
      runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
   }
-  else gameTimer = clock()/CLOCKS_PER_SEC;
+  else if(CLOCKS_PER_SEC != 0){
+    gameTimer = clock()/CLOCKS_PER_SEC;
+  }
 
   myImageWindow->setText("Time: " + Ogre::StringConverter::toString(gameTimer) + " seconds");
-  wpmWindow->setText("WPM: " + Ogre::StringConverter::toString(wordCount*60/gameTimer) + " Words Per Minute");
+  if (gameTimer != 0){
+    wpmWindow->setText("WPM: " + Ogre::StringConverter::toString(wordCount*60/gameTimer) + " Words Per Minute");
+  }
   speedWindow->setText("Speed: " + Ogre::StringConverter::toString(rvz) + "m/s");
 
   if(rvz==0) {
