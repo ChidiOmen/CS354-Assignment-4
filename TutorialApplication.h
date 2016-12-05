@@ -59,6 +59,7 @@ class TutorialApplication : public BaseApplication
     btScalar rvy;
     btScalar rvz;
     bool multiplayer;
+    int obstNum;
 
 
 	std::vector<Block*> blocks;

@@ -10,7 +10,7 @@ Block::Block() {
 
 Block::Block(Ogre::SceneManager *newManager, int num, int z) {
 	id = num;
-	type = ceiling;
+	type = step;
 	position = z;
 	blockManager = newManager;
 	buildBlock();
@@ -77,4 +77,7 @@ btVector3 Block::getPosition() {
 	int y = blockNode->getPosition().y;
 	int z = blockNode->getPosition().z;
 	return btVector3(x,y,z);
+}
+int Block::getZ() {
+	return position;
 }

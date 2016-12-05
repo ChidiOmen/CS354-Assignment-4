@@ -30,6 +30,7 @@ public:
 	void setPosition(int x, int y, int z);
 	void setSize(double x, double y, double z);
 	btVector3 getPosition();
+	int getZ();
 
 	//btDefaultMotionState* blockMotionState;
 	//btCollisionShape* blockShape;

@@ -43,7 +43,7 @@ g++ -pthread -I/lusr/opt/ogre-1.9/include -I/lusr/opt/ogre-1.9/include/OGRE
 
 using namespace std;
 
-const int numBlocks = 2;
+const int numBlocks = 5;
 
 btDefaultCollisionConfiguration* collisionConfiguration;
 btCollisionDispatcher* dispatcher;
@@ -255,6 +255,7 @@ void TutorialApplication::createScene(void)
 
   clock_t startTime = clock();
   wordCount=0;
+  obstNum = 0;
   playerSpeed = 35;
   runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
 
@@ -287,8 +288,6 @@ void TutorialApplication::createScene(void)
      mAnimationState2 = runEnt2->getAnimationState("Walk");
      mAnimationState2->setLoop(true);
      mAnimationState2->setEnabled(true);
-     runNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(Ogre::Vector3(0,0,0));
-     runNode->attachObject(runEnt2);
      runNode->setPosition(100,0,0);
      Ogre::Vector3 src = runNode->getOrientation() * Ogre::Vector3::UNIT_X;
      Ogre::Quaternion quat = src.getRotationTo(Ogre::Vector3(0,0,1));
@@ -354,7 +353,7 @@ void TutorialApplication::createScene(void)
 	blockNode->attachObject(blockEntity);
 	blockNode->setScale(75,25,50);*/
 
-	blocks.push_back(new Block(mSceneMgr,i,1000+(5000*i)));
+	blocks.push_back(new Block(mSceneMgr,i,2000+(5000*i)));
 
 	blockShape = new btBoxShape(btVector3(75,25,50));
 	blockMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), blocks.at(i)->getPosition()/*btVector3(0,25,1000+(5000*i))*/));
@@ -490,6 +489,13 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   else if(mPos.y <=1) {
       runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
   }
+//Dodge function
+	if(numTokens!=0 && obstNum<=numBlocks&& ((int)(blocks.at(obstNum)->getZ() - mPos.z) < playerSpeed*4)) {
+      		runRigidBody->setLinearVelocity(btVector3(0, 50, playerSpeed));
+		numTokens--;
+		if(obstNum!=numBlocks-1)
+			obstNum++;
+	}
 
   /*if(rvz < 10){
     runRigidBody->translate(btVector3(0, 0, -1000));
@@ -498,9 +504,10 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
 	playerSpeed=20;
     runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
   }*/
-
+//PRINTING
   // Displaying runner position
-  std::cout << mPos.x << " " << mPos.y << " " << mPos.z << std::endl;
+  //std::cout << mPos.x << " " << mPos.y << " " << mPos.z << std::endl;
+  //std::cout << (int)(blocks.at(obstNum)->getZ() - (int)(mPos.z)) << std::endl;
   runNode->setPosition(Ogre::Vector3(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ()));
 }
 
@@ -791,5 +798,3 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-
-//---------------------------------------------------------------------------
