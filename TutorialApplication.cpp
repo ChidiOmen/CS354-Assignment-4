@@ -332,8 +332,8 @@ void TutorialApplication::createScene(void)
   for(int i = 0; i < numBlocks; i++) {
 
 	blocks.push_back(new Block(mSceneMgr,i,2000+(5000*i)));
-	switch(blocks.at(i)->getType()) {
-	case 0:{
+	//switch(blocks.at(i)->getType()) {
+	//case 0:{
 		blockShape = new btBoxShape(btVector3(75,25,50));
 		blockMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), blocks.at(i)->getPosition()));
 		btRigidBody::btRigidBodyConstructionInfo blockRigidBodyCI(0, blockMotionState, blockShape, btVector3(0,0,0));
@@ -342,7 +342,7 @@ void TutorialApplication::createScene(void)
 		blockRigidBodies[i]->setFriction(0);
 		blockRigidBodies[i]->setDamping(0,0);
 		dynamicsWorld->addRigidBody(blockRigidBodies[i]);
-		break;
+	/*	break;
 		}
 	case 1: {
 		blockShape = new btBoxShape(btVector3(75,25,50));
@@ -366,7 +366,7 @@ void TutorialApplication::createScene(void)
 		dynamicsWorld->addRigidBody(blockRigidBodies[i]);
 		break;
 		}
-	}
+	}*/
   }
 
 }
