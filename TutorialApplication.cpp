@@ -235,7 +235,7 @@ void TutorialApplication::createScene(void)
   /* Start playing */
   SDL_PauseAudio(0);
 //Set Multiplayer
-  multiplayer = false;
+  multiplayer = true;
   isServer = true;
   //client = false;
   // Initialize ball velicity to 0
@@ -998,7 +998,8 @@ void TutorialApplication::updateClient()
             {
                 IPaddress ip;
                 //std::cout << "Attempting to connect to " << mGUI->currentAddress << "\n";
-                SDLNet_ResolveHost(&ip, "128.83.144.249", 1234);
+		//Set IP ADDRESS
+                SDLNet_ResolveHost(&ip, "128.83.139.76", 1234);
                 server=SDLNet_TCP_Open(&ip);
                 connectionOpened = true;
             }
