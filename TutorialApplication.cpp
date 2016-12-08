@@ -48,7 +48,7 @@ g++ -pthread -I/lusr/opt/ogre-1.9/include -I/lusr/opt/ogre-1.9/include/OGRE
 
 using namespace std;
 
-const int numBlocks = 5;
+const int numBlocks = 9;
 const int trackLen = 14000;
 
 btDefaultCollisionConfiguration* collisionConfiguration;
@@ -235,9 +235,9 @@ void TutorialApplication::createScene(void)
   /* Start playing */
   SDL_PauseAudio(0);
 //Set Multiplayer
-  multiplayer = true;
+  multiplayer = false;
   isServer = true;
-  //client = true;
+  //client = false;
   // Initialize ball velicity to 0
   int initX = 0;
   int initY = 0;
@@ -332,7 +332,7 @@ void TutorialApplication::createScene(void)
 //Create Blocks
   for(int i = 0; i < numBlocks; i++) {
 
-	blocks.push_back(new Block(mSceneMgr,i,2000+(5000*i)));
+	blocks.push_back(new Block(mSceneMgr,i,2000+(2500*i)));
 	//switch(blocks.at(i)->getType()) {
 	//case 0:{
 		blockShape = new btBoxShape(btVector3(75,25,50));
@@ -374,8 +374,13 @@ void TutorialApplication::createScene(void)
 
 // Game loop code
 void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
-
-  mPos = runNode->getPosition();
+  if(isServer) {
+    mPos = runNode->getPosition();
+  }
+  else {
+    mPos = runNode2->getPosition();
+  }
+  
   mCamera->setPosition(mPos + Ogre::Vector3(0, cameraHeight, -500));
   //mCamera->lookAt(mPos);
 
@@ -458,12 +463,13 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   if(dodgeWord.compare(userInput)==0) {
       userInput = "";
       do {
-           dodgeWord = wordList_test[rand()%7];
+           dodgeWord = wordList[rand()%30];
       }while(speedWord.compare(dodgeWord)==0);
       typingWord1->setText(dodgeWord);
       	//runRigidBody->setLinearVelocity(btVector3(0, 50, playerSpeed));
       if(runRigidBody && mPos.y <= 1) {
-        if (numTokens < 5) {
+//Number of Tokens
+        if (numTokens < 3) {
           numTokens++;
           if (numTokens == 1) {
             lifeWindow1->setVisible(true);
@@ -487,7 +493,7 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   else if(speedWord.compare(userInput)==0) {
       userInput = "";
       do {
-          speedWord = wordList_test[rand()%7];
+          speedWord = wordList[rand()%30];
       }while(speedWord.compare(dodgeWord)==0);
       typingWord2->setText(speedWord);
       playerSpeed *= 1.25;
@@ -498,17 +504,24 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   }
 //Flipping
   if(flipping) {
- 	/*Ogre::Vector3 src = runNode->getOrientation() * Ogre::Vector3::UNIT_Z;
-  	Ogre::Quaternion quat = src.getRotationTo(Ogre::Vector3(sqrt(0.5),1,0));
-  	runNode->rotate(quat);*/
 	runNode->roll(Ogre::Degree(-0.75));
   }
   if(mPos.y <= 1) {
 	flipping = false;
 	runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
   }
-//Dodge function
-	int distance = ((int)(blocks.at(obstNum)->getZ() - mPos.z));
+	int distance;
+	if(obstNum <= numBlocks -1){
+		distance = ((int)(blocks.at(obstNum)->getZ() - mPos.z));
+	}	
+//Crash Function
+	if(numTokens == 0 && distance <= 100 && obstNum < numBlocks){
+    		runRigidBody->translate(btVector3(0, 0, -500));
+		playerSpeed /= 2;
+		runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
+	}
+//Dodge Function
+	if(obstNum <= numBlocks -1){
 	switch(blocks.at(obstNum)->getType()) {
 		case 0:
 		if(numTokens!=0 && obstNum<=numBlocks && distance < playerSpeed*4+200) {
@@ -530,8 +543,7 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
         	 	  lifeWindow5->setVisible(false);
         	 	}
 			numTokens--;
-			if(obstNum!=numBlocks-1)
-				obstNum++;
+			obstNum++;
 		}
 		break;
 		case 1:
@@ -559,8 +571,7 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
         	 		  lifeWindow5->setVisible(false);
         	 		}
 				numTokens--;
-				if(obstNum!=numBlocks-1)
-					obstNum++;
+				obstNum++;
   				/*Ogre::Vector3 src = runNode->getOrientation() * Ogre::Vector3::UNIT_Z;
   				Ogre::Quaternion quat = src.getRotationTo(Ogre::Vector3(sqrt(0.5),0,0));
   				runNode->rotate(quat);*/
@@ -589,12 +600,11 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
         	 	  lifeWindow5->setVisible(false);
         	 	}
 			numTokens--;
-			if(obstNum!=numBlocks-1)
-				obstNum++;
+			obstNum++;
 		}
 		break;
 	}
-
+	}	
   /*if(rvz < 10){
     runRigidBody->translate(btVector3(0, 0, -1000));
     playerSpeed /= 2;
@@ -612,7 +622,7 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
       updateClient();
     }
     else{
-      runNode2->setPosition(Ogre::Vector3(trans.getOrigin().getX()+100, trans.getOrigin().getY(), trans.getOrigin().getZ()));
+      runNode2->setPosition(Ogre::Vector3(trans.getOrigin().getX()-100, trans.getOrigin().getY(), trans.getOrigin().getZ()));
       //runNode->setPosition(Ogre::Vector3(trans.getOrigin().getX()-100, trans.getOrigin().getY(), trans.getOrigin().getZ()));
       updateClient();
     }
@@ -1035,7 +1045,7 @@ void TutorialApplication::updateClient()
             //balls.at(0)->setRot(trans.getRotation().getX(), trans.getRotation().getY(), trans.getRotation().getZ(),
                                 //trans.getRotation().getW());
 
-            runNode2->setPosition(recvdCoords[0], recvdCoords[1], recvdCoords[2]);
+            runNode->setPosition(recvdCoords[0], recvdCoords[1], recvdCoords[2]);
 
             //            SDLNet_TCP_Close(server);
         }
