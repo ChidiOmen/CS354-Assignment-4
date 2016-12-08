@@ -266,6 +266,8 @@ void TutorialApplication::createScene(void)
   playerSpeed = 35;
   flipping = false;
   sliding = false;
+  grinding = false;
+  sideRunning = true;
   runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
 
   // Initialize the position of the ball
@@ -334,8 +336,8 @@ void TutorialApplication::createScene(void)
   for(int i = 0; i < numBlocks; i++) {
 
 	blocks.push_back(new Block(mSceneMgr,i,2000+(2500*i)));
-	//switch(blocks.at(i)->getType()) {
-	//case 0:{
+	int blockType = blocks.at(i)->getType();
+	if(blockType == 0) {
 		blockShape = new btBoxShape(btVector3(75,25,50));
 		blockMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), blocks.at(i)->getPosition()));
 		btRigidBody::btRigidBodyConstructionInfo blockRigidBodyCI(0, blockMotionState, blockShape, btVector3(0,0,0));
@@ -344,9 +346,8 @@ void TutorialApplication::createScene(void)
 		blockRigidBodies[i]->setFriction(0);
 		blockRigidBodies[i]->setDamping(0,0);
 		dynamicsWorld->addRigidBody(blockRigidBodies[i]);
-	/*	break;
-		}
-	case 1: {
+	}
+	/*if(blockType == 1) {
 		blockShape = new btBoxShape(btVector3(75,25,50));
 		blockMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), blocks.at(i)->getPosition()));
 		btRigidBody::btRigidBodyConstructionInfo blockRigidBodyCI(0, blockMotionState, blockShape, btVector3(0,0,0));
@@ -369,6 +370,26 @@ void TutorialApplication::createScene(void)
 		break;
 		}
 	}*/
+	if(blockType == 3) {
+		blockShape = new btBoxShape(btVector3(5,25,400));
+		blockMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), blocks.at(i)->getPosition()));
+		btRigidBody::btRigidBodyConstructionInfo blockRigidBodyCI(0, blockMotionState, blockShape, btVector3(0,0,0));
+		blockRigidBodies[i] = new btRigidBody(blockRigidBodyCI);
+		blockRigidBodies[i]->setRestitution(1);
+		blockRigidBodies[i]->setFriction(0);
+		blockRigidBodies[i]->setDamping(0,0);
+		dynamicsWorld->addRigidBody(blockRigidBodies[i]);
+	}
+	if(blockType == 4) {
+		blockShape = new btBoxShape(btVector3(5,200,400));
+		blockMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), blocks.at(i)->getPosition()));
+		btRigidBody::btRigidBodyConstructionInfo blockRigidBodyCI(0, blockMotionState, blockShape, btVector3(0,0,0));
+		blockRigidBodies[i] = new btRigidBody(blockRigidBodyCI);
+		blockRigidBodies[i]->setRestitution(1);
+		blockRigidBodies[i]->setFriction(0);
+		blockRigidBodies[i]->setDamping(0,0);
+		dynamicsWorld->addRigidBody(blockRigidBodies[i]);
+	}
   }
 
 }
@@ -521,6 +542,29 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
 	runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
   	mAnimationState1->setEnabled(true);
   }
+//Grinding
+  if(grinding) {
+	runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI, Ogre::Vector3(0, 0, 0)));
+  	mAnimationState1->setEnabled(false);
+  	if(mPos.y <= 1) {
+		playerSpeed -= 50;
+		grinding = false;
+		runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
+	  	mAnimationState1->setEnabled(true);
+	}
+  }
+//Side Running
+  if(sideRunning) {
+	runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(1, 1, 1)));
+  	if(mPos.y <= 1) {
+		runRigidBody->setLinearVelocity(btVector3(10, 0, playerSpeed));
+		runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
+	  	mAnimationState1->setEnabled(true);
+		if(mPos.x == 0) {
+			sideRunning = false;
+		}
+	}
+  }
 	int distance;
 	if(obstNum <= numBlocks -1){
 		distance = ((int)(blocks.at(obstNum)->getZ() - mPos.z));
@@ -529,18 +573,21 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
 	if(obstNum <= numBlocks -1){
 		switch(blocks.at(obstNum)->getType()) {
 		case 0:
+		case 3:
 		case 1:
 			if(numTokens == 0 && distance <= 100 && obstNum < numBlocks){
-    				runRigidBody->translate(btVector3(0, 0, -500));
+    				//runRigidBody->translate(btVector3(0, 0, -500));
 				playerSpeed /= 2;
-				runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
+				runRigidBody->setLinearVelocity(btVector3(0, 50, -50));
 			}
 		break;
+		case 4:
 		case 2:
 			if(numTokens == 0 && distance <= 200 && obstNum < numBlocks){
-	    			runRigidBody->translate(btVector3(0, 0, -500));
+	    			//runRigidBody->translate(btVector3(0, 0, -500));
 				playerSpeed /= 2;
-				runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
+				//runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
+				runRigidBody->setLinearVelocity(btVector3(0, 50, -50));
 			}
 		break;
 		}
@@ -634,10 +681,34 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   				//cameraHeight = 100;
   				//mAnimationState1->setEnabled(true);
 		}
+		case 3:
+		if(numTokens!=0 && obstNum<=numBlocks && distance < playerSpeed*4+200) {
+			playerSpeed += 50;
+      			runRigidBody->setLinearVelocity(btVector3(0, 40, playerSpeed));
+			grinding = true;
+        	  	if (numTokens == 1) {
+        	  	  lifeWindow1->setVisible(false);
+       	   		}
+        	  	else if (numTokens == 2) {
+          		  lifeWindow2->setVisible(false);
+          		}
+          		else if (numTokens == 3) {
+         		   lifeWindow3->setVisible(false);
+         	 	}
+         		else if (numTokens == 4) {
+         		  lifeWindow4->setVisible(false);
+         		}
+         		else if (numTokens == 5) {
+        	 	  lifeWindow5->setVisible(false);
+        	 	}
+			numTokens--;
+			obstNum++;
+		}
 		break;
 		case 4:
-		if(numTokens!=0 && obstNum<=numBlocks && distance < playerSpeed*4+200) {
-      			runRigidBody->setLinearVelocity(btVector3(0, 40, playerSpeed+50));
+		if(numTokens!=0 && obstNum<=numBlocks && distance < playerSpeed) {
+      			runRigidBody->setLinearVelocity(btVector3(-40, 40, playerSpeed+50));
+			sideRunning = true;
         	  	if (numTokens == 1) {
         	  	  lifeWindow1->setVisible(false);
        	   		}
@@ -728,19 +799,19 @@ void TutorialApplication::CEGUI_setup(){
 
   //CEGUI Life indicator
   lifeWindow1 = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/RadioButton","rLife1");
-  lifeWindow1->setPosition(CEGUI::UVector2(CEGUI::UDim(0.465, 0),CEGUI::UDim(0.95,0)));
+  lifeWindow1->setPosition(CEGUI::UVector2(CEGUI::UDim(0.465, 0),CEGUI::UDim(0.3,0)));
   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(lifeWindow1);
   lifeWindow2 = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/RadioButton","rLife2");
-  lifeWindow2->setPosition(CEGUI::UVector2(CEGUI::UDim(0.495, 0),CEGUI::UDim(0.95,0)));
+  lifeWindow2->setPosition(CEGUI::UVector2(CEGUI::UDim(0.495, 0),CEGUI::UDim(0.3,0)));
   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(lifeWindow2);
   lifeWindow3 = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/RadioButton","rLife3");
-  lifeWindow3->setPosition(CEGUI::UVector2(CEGUI::UDim(0.525, 0),CEGUI::UDim(0.95,0)));
+  lifeWindow3->setPosition(CEGUI::UVector2(CEGUI::UDim(0.525, 0),CEGUI::UDim(0.3,0)));
   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(lifeWindow3);
   lifeWindow4 = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/RadioButton","rLife4");
-  lifeWindow4->setPosition(CEGUI::UVector2(CEGUI::UDim(0.555, 0),CEGUI::UDim(0.95,0)));
+  lifeWindow4->setPosition(CEGUI::UVector2(CEGUI::UDim(0.555, 0),CEGUI::UDim(0.3,0)));
   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(lifeWindow4);
   lifeWindow5 = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/RadioButton","rLife5");
-  lifeWindow5->setPosition(CEGUI::UVector2(CEGUI::UDim(0.585, 0),CEGUI::UDim(0.95,0)));
+  lifeWindow5->setPosition(CEGUI::UVector2(CEGUI::UDim(0.585, 0),CEGUI::UDim(0.3,0)));
   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(lifeWindow5);
 
   lifeWindow1->setVisible(false);
@@ -767,9 +838,9 @@ void TutorialApplication::CEGUI_setup(){
 
   //Create text box to indicate lives 
   CEGUI::Window *lifeIndicator = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","lifeIndicatorW");
-  lifeIndicator->setPosition(CEGUI::UVector2(CEGUI::UDim(0.39,0),CEGUI::UDim(0.945,0)));
+  lifeIndicator->setPosition(CEGUI::UVector2(CEGUI::UDim(0.465,0),CEGUI::UDim(0.25,0)));
   lifeIndicator->setSize(USize(UDim(0.07,0),UDim(0.04,0)));
-  lifeIndicator->setText("TOKENS:");
+  lifeIndicator->setText("TOKENS");
   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(lifeIndicator);
 
   //Create text box for words to be typed

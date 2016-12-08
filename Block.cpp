@@ -9,7 +9,7 @@ Block::Block() {
 
 Block::Block(Ogre::SceneManager *newManager, int num, int z) {
 	id = num;
-	int temp = 2;//rand()%2;
+	int temp = rand()%4;
 	switch(temp) {
 		case (0): 
 		type = step;
@@ -102,11 +102,17 @@ void Block::buildBlock() {
 			blockNode2->attachObject(blockEntity2);
 		break;
 		case rail:
+			blockNode1 = blockManager->getRootSceneNode()->createChildSceneNode();
+			blockNode1->setPosition(0,25,position+350);
+			blockNode1->setScale(5,25,400);
+			blockEntity1 = blockManager->createEntity("blockright"+id, "Brick.mesh");
+			blockEntity1->setCastShadows(true);
+			blockNode1->attachObject(blockEntity1);
 		break;
 		case sideRun: 
 			blockNode1 = blockManager->getRootSceneNode()->createChildSceneNode();
-			blockNode1->setPosition(0,100,position);
-			blockNode1->setScale(15,100,200);
+			blockNode1->setPosition(-100,100,position+350);
+			blockNode1->setScale(15,100,400);
 			blockEntity1 = blockManager->createEntity("block"+id, "Metal.mesh");
 			blockEntity1->setCastShadows(true);
 			blockNode1->attachObject(blockEntity1);
