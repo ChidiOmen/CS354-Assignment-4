@@ -236,7 +236,8 @@ void TutorialApplication::createScene(void)
   SDL_PauseAudio(0);
 
   multiplayer = true;
-  isServer = true;
+  isServer = false;
+  //client = false;
   // Initialize ball velicity to 0
   int initX = 0;
   int initY = 0;
@@ -347,8 +348,13 @@ void TutorialApplication::createScene(void)
 
 // Game loop code
 void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
-
-  mPos = runNode->getPosition();
+  if(isServer) {
+    mPos = runNode->getPosition();
+  }
+  else {
+    mPos = runNode2->getPosition();
+  }
+  
   mCamera->setPosition(mPos + Ogre::Vector3(0, cameraHeight, -500));
   //mCamera->lookAt(mPos);
 
@@ -431,7 +437,7 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   if(dodgeWord.compare(userInput)==0) {
       userInput = "";
       do {
-           dodgeWord = wordList_test[rand()%7];
+           dodgeWord = wordList[rand()%30];
       }while(speedWord.compare(dodgeWord)==0);
       typingWord1->setText(dodgeWord);
       	//runRigidBody->setLinearVelocity(btVector3(0, 50, playerSpeed));
@@ -460,7 +466,7 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   else if(speedWord.compare(userInput)==0) {
       userInput = "";
       do {
-          speedWord = wordList_test[rand()%7];
+          speedWord = wordList[rand()%30];
       }while(speedWord.compare(dodgeWord)==0);
       typingWord2->setText(speedWord);
       playerSpeed *= 1.25;
@@ -557,13 +563,13 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   // Displaying runner position
   //std::cout << mPos.x << " " << mPos.y << " " << mPos.z << std::endl;
   if(multiplayer) {
-    if(server) {
+    if(isServer) {
   	 runNode->setPosition(Ogre::Vector3(trans.getOrigin().getX()+100, trans.getOrigin().getY(), trans.getOrigin().getZ()));
   	 //runNode2->setPosition(Ogre::Vector3(trans.getOrigin().getY(), trans.getOrigin().getZ()));
       updateClient();
     }
     else{
-      runNode2->setPosition(Ogre::Vector3(trans.getOrigin().getX()+100, trans.getOrigin().getY(), trans.getOrigin().getZ()));
+      runNode2->setPosition(Ogre::Vector3(trans.getOrigin().getX()-100, trans.getOrigin().getY(), trans.getOrigin().getZ()));
       //runNode->setPosition(Ogre::Vector3(trans.getOrigin().getX()-100, trans.getOrigin().getY(), trans.getOrigin().getZ()));
       updateClient();
     }
@@ -986,7 +992,7 @@ void TutorialApplication::updateClient()
             //balls.at(0)->setRot(trans.getRotation().getX(), trans.getRotation().getY(), trans.getRotation().getZ(),
                                 //trans.getRotation().getW());
 
-            runNode2->setPosition(recvdCoords[0], recvdCoords[1], recvdCoords[2]);
+            runNode->setPosition(recvdCoords[0], recvdCoords[1], recvdCoords[2]);
 
             //            SDLNet_TCP_Close(server);
         }
