@@ -237,6 +237,7 @@ void TutorialApplication::createScene(void)
 //Set Multiplayer
   multiplayer = true;
   isServer = true;
+  //client = true;
   // Initialize ball velicity to 0
   int initX = 0;
   int initY = 0;
@@ -605,7 +606,7 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   // Displaying runner position
   //std::cout << mPos.x << " " << mPos.y << " " << mPos.z << std::endl;
   if(multiplayer) {
-    if(server) {
+    if(isServer) {
   	 runNode->setPosition(Ogre::Vector3(trans.getOrigin().getX()+100, trans.getOrigin().getY(), trans.getOrigin().getZ()));
   	 //runNode2->setPosition(Ogre::Vector3(trans.getOrigin().getY(), trans.getOrigin().getZ()));
       updateClient();
