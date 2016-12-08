@@ -235,7 +235,7 @@ void TutorialApplication::createScene(void)
   /* Start playing */
   SDL_PauseAudio(0);
 //Set Multiplayer
-  multiplayer = true;
+  multiplayer = false;
   isServer = true;
   //client = false;
   // Initialize ball velicity to 0
@@ -265,6 +265,7 @@ void TutorialApplication::createScene(void)
   obstNum = 0;
   playerSpeed = 35;
   flipping = false;
+  sliding = false;
   runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
 
   // Initialize the position of the ball
@@ -510,15 +511,39 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
 	flipping = false;
 	runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
   }
+//Sliding
+  if(sliding) {
+	runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI, Ogre::Vector3(0, 1, 0)));
+  	mAnimationState1->setEnabled(false);
+  }
+  if(mPos.y <= 1) {
+	sliding = false;
+	runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
+  	mAnimationState1->setEnabled(true);
+  }
 	int distance;
 	if(obstNum <= numBlocks -1){
 		distance = ((int)(blocks.at(obstNum)->getZ() - mPos.z));
 	}	
 //Crash Function
-	if(numTokens == 0 && distance <= 100 && obstNum < numBlocks){
-    		runRigidBody->translate(btVector3(0, 0, -500));
-		playerSpeed /= 2;
-		runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
+	if(obstNum <= numBlocks -1){
+		switch(blocks.at(obstNum)->getType()) {
+		case 0:
+		case 1:
+			if(numTokens == 0 && distance <= 100 && obstNum < numBlocks){
+    				runRigidBody->translate(btVector3(0, 0, -500));
+				playerSpeed /= 2;
+				runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
+			}
+		break;
+		case 2:
+			if(numTokens == 0 && distance <= 200 && obstNum < numBlocks){
+	    			runRigidBody->translate(btVector3(0, 0, -500));
+				playerSpeed /= 2;
+				runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
+			}
+		break;
+		}
 	}
 //Dodge Function
 	if(obstNum <= numBlocks -1){
@@ -582,6 +607,35 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
 		}
 		break;
 		case 2:
+		if(numTokens!=0 && obstNum<=numBlocks && distance < 400) {
+      				runRigidBody->setLinearVelocity(btVector3(0, 30, playerSpeed+100));
+				sliding = true;
+        	  		if (numTokens == 1) {
+        	  		  lifeWindow1->setVisible(false);
+       	   			}
+        	  		else if (numTokens == 2) {
+          			  lifeWindow2->setVisible(false);
+          			}
+          			else if (numTokens == 3) {
+         			   lifeWindow3->setVisible(false);
+         	 		}
+         			else if (numTokens == 4) {
+         			  lifeWindow4->setVisible(false);
+         			}
+         			else if (numTokens == 5) {
+        	 		  lifeWindow5->setVisible(false);
+        	 		}
+				numTokens--;
+				obstNum++;
+  				/*Ogre::Vector3 src = runNode->getOrientation() * Ogre::Vector3::UNIT_Z;
+  				Ogre::Quaternion quat = src.getRotationTo(Ogre::Vector3(sqrt(0.5),0,0));
+  				runNode->rotate(quat);*/
+				//runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
+  				//cameraHeight = 100;
+  				//mAnimationState1->setEnabled(true);
+		}
+		break;
+		case 4:
 		if(numTokens!=0 && obstNum<=numBlocks && distance < playerSpeed*4+200) {
       			runRigidBody->setLinearVelocity(btVector3(0, 40, playerSpeed+50));
         	  	if (numTokens == 1) {
@@ -612,6 +666,9 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
 	playerSpeed=20;
     runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
   }*/
+//MINIMIM SPEED
+    if(playerSpeed<20)
+	playerSpeed=20;
 //PRINTING
   // Displaying runner position
   //std::cout << mPos.x << " " << mPos.y << " " << mPos.z << std::endl;
@@ -999,7 +1056,7 @@ void TutorialApplication::updateClient()
                 IPaddress ip;
                 //std::cout << "Attempting to connect to " << mGUI->currentAddress << "\n";
 		//Set IP ADDRESS
-                SDLNet_ResolveHost(&ip, "128.83.139.76", 1234);
+                SDLNet_ResolveHost(&ip, "128.83.138.76", 1234);
                 server=SDLNet_TCP_Open(&ip);
                 connectionOpened = true;
             }

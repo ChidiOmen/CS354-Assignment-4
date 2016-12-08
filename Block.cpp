@@ -9,7 +9,7 @@ Block::Block() {
 
 Block::Block(Ogre::SceneManager *newManager, int num, int z) {
 	id = num;
-	int temp = rand()%2;
+	int temp = 2;//rand()%2;
 	switch(temp) {
 		case (0): 
 		type = step;
@@ -18,10 +18,13 @@ Block::Block(Ogre::SceneManager *newManager, int num, int z) {
 		type = ceiling;
 		break;
 		case (2): 
-		type = rail;
+		type = gap;
 		break;
 		case (3):
-		type = gap;
+		type = rail;
+		break;
+		case (4):
+		type = sideRun;
 		break;
 	}
 	position = z;
@@ -83,28 +86,30 @@ void Block::buildBlock() {
 			blockNode3->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0.0, 0.0, 1.0)));
 			blockNode3->attachObject(blockEntity3);
 		break;
-		case rail:
-			blockNode1 = blockManager->getRootSceneNode()->createChildSceneNode();
-			blockNode1->setPosition(0,100,position);
-			blockNode1->setScale(15,100,200);
-			blockEntity1 = blockManager->createEntity("block"+id, "Metal.mesh");
-			blockEntity1->setCastShadows(true);
-			blockNode1->attachObject(blockEntity1);
-		break;
 		case gap:
 			blockNode1 = blockManager->getRootSceneNode()->createChildSceneNode();
-			blockNode1->setPosition(0,100,position);
+			blockNode1->setPosition(50,100,position);
 			blockNode1->setScale(15,100,200);
 			blockEntity1 = blockManager->createEntity("block"+id, "Brick.mesh");
 			blockEntity1->setCastShadows(true);
 			blockNode1->attachObject(blockEntity1);
 
 			blockNode2 = blockManager->getRootSceneNode()->createChildSceneNode();
-			blockNode2->setPosition(0,100,position);
+			blockNode2->setPosition(-50,100,position);
 			blockNode2->setScale(15,100,200);
 			blockEntity2 = blockManager->createEntity("blockright"+id, "Brick.mesh");
 			blockEntity2->setCastShadows(true);
 			blockNode2->attachObject(blockEntity2);
+		break;
+		case rail:
+		break;
+		case sideRun: 
+			blockNode1 = blockManager->getRootSceneNode()->createChildSceneNode();
+			blockNode1->setPosition(0,100,position);
+			blockNode1->setScale(15,100,200);
+			blockEntity1 = blockManager->createEntity("block"+id, "Metal.mesh");
+			blockEntity1->setCastShadows(true);
+			blockNode1->attachObject(blockEntity1);
 		break;
 	}
 
@@ -130,11 +135,13 @@ int Block::getType() {
 	else if(type==ceiling) {
 		return 1;
 	}
-	else if(type==rail) {
+	else if(type==gap) {
 		return 2;
 	}
-	else if(type==gap) {
+	else if(type==rail) {
 		return 3;
 	}
+	else if(type==sideRun)
+		return 4;
 	else return 0;
 }

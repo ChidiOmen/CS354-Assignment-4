@@ -74,6 +74,7 @@ class TutorialApplication : public BaseApplication
     int obstNum;
     int cameraHeight;
     bool flipping;
+    bool sliding;
     double flipSpeed;
     
 
