@@ -5,7 +5,6 @@ Block::Block() {
 	id=1;
 	type = step;
 	position = 0;
-	//buildBlock();
 }
 
 Block::Block(Ogre::SceneManager *newManager, int num, int z) {
@@ -19,7 +18,10 @@ Block::Block(Ogre::SceneManager *newManager, int num, int z) {
 		type = ceiling;
 		break;
 		case (2): 
-		type = pillar;
+		type = rail;
+		break;
+		case (3):
+		type = gap;
 		break;
 	}
 	position = z;
@@ -61,14 +63,14 @@ void Block::buildBlock() {
 			blockNode1 = blockManager->getRootSceneNode()->createChildSceneNode();
 			blockNode1->setPosition(0,115,position+100);
 			blockNode1->setScale(75,100,200);
-			blockEntity1 = blockManager->createEntity("block"+id, "Metal.mesh");
+			blockEntity1 = blockManager->createEntity("block"+id, "Brick.mesh");
 			blockEntity1->setCastShadows(true);
 			blockNode1->attachObject(blockEntity1);
 
 			blockNode2 = blockManager->getRootSceneNode()->createChildSceneNode();
 			blockNode2->setPosition(-175,105,position+100);
 			blockNode2->setScale(40,25,200);
-			blockEntity2 = blockManager->createEntity("blockleft"+id, "Metal.mesh");
+			blockEntity2 = blockManager->createEntity("blockleft"+id, "Brick.mesh");
 			blockEntity2->setCastShadows(true);
 			blockNode2->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0.0, 0.0, 1.0)));
 			blockNode2->attachObject(blockEntity2);
@@ -76,17 +78,33 @@ void Block::buildBlock() {
 			blockNode3 = blockManager->getRootSceneNode()->createChildSceneNode();
 			blockNode3->setPosition(175,105,position+100);
 			blockNode3->setScale(40,25,200);
-			blockEntity3 = blockManager->createEntity("blockright"+id, "Metal.mesh");
+			blockEntity3 = blockManager->createEntity("blockright"+id, "Brick.mesh");
 			blockEntity3->setCastShadows(true);
 			blockNode3->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0.0, 0.0, 1.0)));
 			blockNode3->attachObject(blockEntity3);
 		break;
-		case pillar:
+		case rail:
 			blockNode1 = blockManager->getRootSceneNode()->createChildSceneNode();
-			blockNode1->setPosition(0,25,position);
-			//blockNode1->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0.0, 1.0, 0.0)));
-			blockNode1->setScale(75,25,50);
-			blockEntity1 = blockManager->createEntity("block"+id, "Wood.mesh");
+			blockNode1->setPosition(0,100,position);
+			blockNode1->setScale(15,100,200);
+			blockEntity1 = blockManager->createEntity("block"+id, "Metal.mesh");
+			blockEntity1->setCastShadows(true);
+			blockNode1->attachObject(blockEntity1);
+		break;
+		case gap:
+			blockNode1 = blockManager->getRootSceneNode()->createChildSceneNode();
+			blockNode1->setPosition(0,100,position);
+			blockNode1->setScale(15,100,200);
+			blockEntity1 = blockManager->createEntity("block"+id, "Brick.mesh");
+			blockEntity1->setCastShadows(true);
+			blockNode1->attachObject(blockEntity1);
+
+			blockNode2 = blockManager->getRootSceneNode()->createChildSceneNode();
+			blockNode2->setPosition(0,100,position);
+			blockNode2->setScale(15,100,200);
+			blockEntity2 = blockManager->createEntity("blockright"+id, "Brick.mesh");
+			blockEntity2->setCastShadows(true);
+			blockNode2->attachObject(blockEntity2);
 		break;
 	}
 
@@ -112,8 +130,11 @@ int Block::getType() {
 	else if(type==ceiling) {
 		return 1;
 	}
-	else if(type==pillar) {
+	else if(type==rail) {
 		return 2;
+	}
+	else if(type==gap) {
+		return 3;
 	}
 	else return 0;
 }

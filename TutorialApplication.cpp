@@ -231,8 +231,8 @@ void TutorialApplication::createScene(void)
   }
   /* Start playing */
   SDL_PauseAudio(0);
-
-  multiplayer = true;
+//Set Multiplayer
+  multiplayer = false;
   // Initialize ball velicity to 0
   int initX = 0;
   int initY = 0;
@@ -280,7 +280,7 @@ void TutorialApplication::createScene(void)
   runNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(Ogre::Vector3(0,0,0));
   runNode->attachObject(runEnt);
   if(multiplayer) {
-	runNode->setPosition(100,0,0);
+	runNode->setPosition(75,0,0);
   }
   Ogre::Vector3 src = runNode->getOrientation() * Ogre::Vector3::UNIT_X;
   Ogre::Quaternion quat = src.getRotationTo(Ogre::Vector3(0,0,1));
@@ -296,7 +296,7 @@ void TutorialApplication::createScene(void)
      mAnimationState2->setEnabled(true);
      runNode2 = mSceneMgr->getRootSceneNode()->createChildSceneNode(Ogre::Vector3(0,0,0));
      runNode2->attachObject(runEnt2);
-     runNode2->setPosition(-100,0,0);
+     //runNode2->setPosition(-75,0,0);
      Ogre::Vector3 src = runNode2->getOrientation() * Ogre::Vector3::UNIT_X;
      Ogre::Quaternion quat = src.getRotationTo(Ogre::Vector3(0,0,1));
      runNode2->rotate(quat);
@@ -324,19 +324,45 @@ void TutorialApplication::createScene(void)
 
 
   mSceneMgr->setShadowTechnique(Ogre::SHADOWTYPE_STENCIL_ADDITIVE);
-
+//Create Blocks
   for(int i = 0; i < numBlocks; i++) {
 
 	blocks.push_back(new Block(mSceneMgr,i,2000+(5000*i)));
-
-	blockShape = new btBoxShape(btVector3(75,25,50));
-	blockMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), blocks.at(i)->getPosition()));
-	btRigidBody::btRigidBodyConstructionInfo blockRigidBodyCI(0, blockMotionState, blockShape, btVector3(0,0,0));
-	blockRigidBodies[i] = new btRigidBody(blockRigidBodyCI);
-	blockRigidBodies[i]->setRestitution(1);
-	blockRigidBodies[i]->setFriction(0);
-	blockRigidBodies[i]->setDamping(0,0);
-	dynamicsWorld->addRigidBody(blockRigidBodies[i]);
+	switch(blocks.at(i)->getType()) {
+	case 0:{
+		blockShape = new btBoxShape(btVector3(75,25,50));
+		blockMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), blocks.at(i)->getPosition()));
+		btRigidBody::btRigidBodyConstructionInfo blockRigidBodyCI(0, blockMotionState, blockShape, btVector3(0,0,0));
+		blockRigidBodies[i] = new btRigidBody(blockRigidBodyCI);
+		blockRigidBodies[i]->setRestitution(1);
+		blockRigidBodies[i]->setFriction(0);
+		blockRigidBodies[i]->setDamping(0,0);
+		dynamicsWorld->addRigidBody(blockRigidBodies[i]);
+		break;
+		}
+	case 1: {
+		blockShape = new btBoxShape(btVector3(75,25,50));
+		blockMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), blocks.at(i)->getPosition()));
+		btRigidBody::btRigidBodyConstructionInfo blockRigidBodyCI(0, blockMotionState, blockShape, btVector3(0,0,0));
+		blockRigidBodies[i] = new btRigidBody(blockRigidBodyCI);
+		blockRigidBodies[i]->setRestitution(1);
+		blockRigidBodies[i]->setFriction(0);
+		blockRigidBodies[i]->setDamping(0,0);
+		dynamicsWorld->addRigidBody(blockRigidBodies[i]);
+		break;
+		}
+	case 2: {
+		blockShape = new btBoxShape(btVector3(15,100,200));
+		blockMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), blocks.at(i)->getPosition()));
+		btRigidBody::btRigidBodyConstructionInfo blockRigidBodyCI(0, blockMotionState, blockShape, btVector3(0,0,0));
+		blockRigidBodies[i] = new btRigidBody(blockRigidBodyCI);
+		blockRigidBodies[i]->setRestitution(1);
+		blockRigidBodies[i]->setFriction(0);
+		blockRigidBodies[i]->setDamping(0,0);
+		dynamicsWorld->addRigidBody(blockRigidBodies[i]);
+		break;
+		}
+	}
   }
 
 }
@@ -467,9 +493,10 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   }
 //Flipping
   if(flipping) {
- 	Ogre::Vector3 src = runNode->getOrientation() * Ogre::Vector3::UNIT_Z;
+ 	/*Ogre::Vector3 src = runNode->getOrientation() * Ogre::Vector3::UNIT_Z;
   	Ogre::Quaternion quat = src.getRotationTo(Ogre::Vector3(sqrt(0.5),1,0));
-  	runNode->rotate(quat);
+  	runNode->rotate(quat);*/
+	runNode->roll(Ogre::Degree(-0.75));
   }
   if(mPos.y <= 1) {
 	flipping = false;
@@ -504,7 +531,7 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
 		break;
 		case 1:
 		if(numTokens!=0 && obstNum<=numBlocks) {
-			if(distance < playerSpeed*15 && distance >= -1000) {
+			if(distance < playerSpeed*10 && distance >= -1000) {
 				runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(-1, -1, 1)));
   				//cameraHeight = 10;
   				mAnimationState1->setEnabled(false);
@@ -539,6 +566,27 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
 		}
 		break;
 		case 2:
+		if(numTokens!=0 && obstNum<=numBlocks && distance < playerSpeed*4+200) {
+      			runRigidBody->setLinearVelocity(btVector3(0, 40, playerSpeed+50));
+        	  	if (numTokens == 1) {
+        	  	  lifeWindow1->setVisible(false);
+       	   		}
+        	  	else if (numTokens == 2) {
+          		  lifeWindow2->setVisible(false);
+          		}
+          		else if (numTokens == 3) {
+         		   lifeWindow3->setVisible(false);
+         	 	}
+         		else if (numTokens == 4) {
+         		  lifeWindow4->setVisible(false);
+         		}
+         		else if (numTokens == 5) {
+        	 	  lifeWindow5->setVisible(false);
+        	 	}
+			numTokens--;
+			if(obstNum!=numBlocks-1)
+				obstNum++;
+		}
 		break;
 	}
 

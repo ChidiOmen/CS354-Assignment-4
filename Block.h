@@ -11,7 +11,7 @@ class Block
 {
 
 public:
-	enum Type {step,ceiling,pillar};
+	enum Type {step,ceiling,rail,gap,pillar};
 	int id;
 	Type type;
 	int position;
