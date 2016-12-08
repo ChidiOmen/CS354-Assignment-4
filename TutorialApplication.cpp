@@ -40,6 +40,9 @@ g++ -pthread -I/lusr/opt/ogre-1.9/include -I/lusr/opt/ogre-1.9/include/OGRE
 #include <ctime>
 #include <string>
 #include "Block.h"
+#include "/usr/include/SDL/SDL_net.h"
+
+
 #define PI 3.1415926535898
 
 
@@ -555,6 +558,7 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   if(multiplayer) {
   	runNode->setPosition(Ogre::Vector3(trans.getOrigin().getX()+100, trans.getOrigin().getY(), trans.getOrigin().getZ()));
   	runNode2->setPosition(Ogre::Vector3(trans.getOrigin().getX()-100, trans.getOrigin().getY(), trans.getOrigin().getZ()));
+    updateClient();
   }
   else {
   	runNode->setPosition(Ogre::Vector3(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ()));
@@ -807,6 +811,179 @@ void my_audio_callback(void *userdata, Uint8 *stream, int len) {
 
 }
 
+//---------------------------------------------------------------------------
+clock_t getCurrentTime()
+{
+    return clock() / (CLOCKS_PER_SEC / 1000);
+}
+//---------------------------------------------------------------------------
+
+void TutorialApplication::updateClient()
+{
+    /* Changes needed:
+     * send information on the rotation of the sphere (in 4 doubles, 32 bytes)
+     * bringing us to  12 + (12 + 32) = 56 bytes = 448 bits */
+
+    /* Contains information of the rotation of the ball within "trans" */
+    //btTransform trans;
+    //engine->ballRigidBody.at(0)->getMotionState()->getWorldTransform(trans);
+
+    /* Might need to get the position and rotation of the ball using
+    the get() functions */
+
+    // The "ints" may need to be "floats" instead, or cast
+    // 12 bytes
+    //int bPosX = trans.getOrigin().getX();
+    //int bPosY = trans.getOrigin().getY();
+    //int bPosZ = trans.getOrigin().getZ();
+    // 32 bytes
+    //double bRotX = trans.getRotation().getX();
+    //double bRotY = trans.getRotation().getY();
+    //double bRotZ = trans.getRotation().getZ();
+    //double bRotW = trans.getRotation().getW();
+
+    // The "ints" may need to be "floats" instead, or cast
+    // 12 bytes
+//    int bPosX = balls[0].getPos().x;
+//    int bPosY = balls[0].getPos().y;
+//    int bPosZ = balls[0].getPos().z;
+    // 32 bytes
+//    double bRotX = balls[0].getRotation().x;
+//    double bRotY = balls[0].getRotation().y;
+//    double bRotZ = balls[0].getRotation().z;
+//    double bRotW = balls[0].getRotation().w;
+
+    bool update = false;
+    if(lastUpdate == -1) {
+        lastUpdate = getCurrentTime();
+        update = true;
+    } else{
+        update = getCurrentTime() - lastUpdate > 16;
+    }
+
+    if (update) {
+        if(isServer)
+        {
+            if(!connectionOpened)
+            {
+                IPaddress ip;
+                SDLNet_ResolveHost(&ip, NULL, 1234);
+                server = SDLNet_TCP_Open(&ip);
+            }
+
+            char sendBuffer[500];
+            //Ogre::Vector3* playerCoords = runNode->getPosition();
+            //Ogre::Vector3* playerOrientation = &runNode->getOrientation();
+
+            // Arrays preparing to use memcpy
+            float sendCoords[3] = {runNode->getPosition().x, runNode->getPosition().y, runNode->getPosition().z};
+            //int sendOrientation[3] = {playerOrientation->x, playerOrientation->y, playerOrientation->z};
+            //double sendBRot[4] = {bRotX, bRotY, bRotZ, bRotW};
+            //int sendScore[2] = {p1lives, p2lives};
+            while(1)
+            {
+                if(!connectionOpened)
+                {
+                    client=SDLNet_TCP_Accept(server);
+                    if(client)
+                    {
+                        connectionOpened = true;
+                        //mGUI->setHostVisible(false);
+                    }
+                }
+                if(client)
+                {
+                    // Memcpy functions (Arrays may need '&' symbol before them)
+                    memcpy(sendBuffer, &sendCoords, sizeof(float)*3); // <-- this one
+                    //memcpy(&sendBuffer[sizeof(float)*3], &sendOrientation, sizeof(int)*3);
+                    //memcpy(&sendBuffer[sizeof(float)*2 + sizeof(int)*3], &sendBRot, sizeof(double)*4);
+                    //memcpy(&sendBuffer[sizeof(float)*2 + sizeof(int)*3 + sizeof(double)*4], &sendScore, sizeof(int)*2);
+                    SDLNet_TCP_Send(client, sendBuffer, sizeof(float)*3 + sizeof(int)*3);
+                    break;
+                }
+                mKeyboard->capture();
+                if(mKeyboard->isKeyDown(OIS::KC_ESCAPE))
+                {
+                    mShutDown = true;
+                    break;
+                }
+            }
+
+            char recvBuffer[100];
+            SDLNet_TCP_Recv(client,recvBuffer,100);
+            float recvdCoords[3];
+            // Need to also receive paddle collision info to render in physics engine
+            memcpy(&recvdCoords, recvBuffer, sizeof(float)*3);
+            //paddleCoords = &paddle2->position;
+            //playerCoords->x = recvdCoords[0];
+            //playerCoords->y = recvdCoords[1];
+            //playerCoords->z = recvdCoords[2];
+            runNode2->setPosition(recvdCoords[0], recvdCoords[1], recvdCoords[2]);
+
+            //            SDLNet_TCP_Close(client);
+            //            SDLNet_TCP_Close(server);
+        }
+
+        if (!isServer)
+        {
+
+            if(!connectionOpened)
+            {
+                IPaddress ip;
+                //std::cout << "Attempting to connect to " << mGUI->currentAddress << "\n";
+                SDLNet_ResolveHost(&ip, "128.83.144.249", 1234);
+                server=SDLNet_TCP_Open(&ip);
+                connectionOpened = true;
+            }
+            char sendBuffer[100];
+            //Ogre::Vector3* playerCoords = runNode2->getPosition();
+            float sendCoords[3] = {runNode2->getPosition().x, runNode2->getPosition().y, runNode2->getPosition().z};
+            memcpy(sendBuffer, &sendCoords, sizeof(float)*3);
+            SDLNet_TCP_Send(server,sendBuffer,sizeof(float)*3);
+
+            char recvBuffer[500];
+            SDLNet_TCP_Recv(server,recvBuffer,500);
+
+            float recvdCoords[3];
+            int recvdBPos[3];
+            double recvdBRot[4];
+            int recvdScore[2];
+
+            memcpy(recvdCoords, &recvBuffer, sizeof(float)*3);
+            //memcpy(&recvdOrientation, &recvBuffer[sizeof(float)*3], sizeof(int)*3);
+            //memcpy(&recvdBRot, &recvBuffer[sizeof(float)*2 + sizeof(int)*3], sizeof(double)*4);
+            //memcpy(&recvdScore, &recvBuffer[sizeof(float)*2 + sizeof(int)*3 + sizeof(double)*4], sizeof(int)*2);
+            //p1lives = recvdScore[0];
+            //p2lives = recvdScore[1];
+
+
+            //playerCoords = &paddle1->position;
+            //playerCoords->x = recvdCoords[0];
+            //playerCoords->y = recvdCoords[1];
+            //playerCoords->z = recvdCoords[2];
+            //trans.setOrigin(btVector3(recvdBPos[0],recvdBPos[1], recvdBPos[2]));
+//            trans.setOrigin().setX(recvdBPos[0]);
+//            trans.setOrigin().setY(recvdBPos[1]);
+//            trans.setOrigin().setZ(recvdBPos[2]);
+            //trans.setRotation(btQuaternion(recvdBRot[0], recvdBRot[1], recvdBRot[2], recvdBRot[3]));
+//            trans.setRotation().setX(recvdBRot[0]);
+//            trans.setRotation().setY(recvdBRot[1]);
+//            trans.setRotation().setZ(recvdBRot[2]);
+//            trans.setRotation().setW(recvdBRot[3]);
+
+//            balls[0]->setPos(recvdBPos[0], recvdBPos[1], recvdBPos[2]);
+//            balls[0]->setRot(recvdBRot[0], recvdBRot[1], recvdBRot[2], recvdBRot[3]);
+
+            //balls.at(0)->setPos(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ());
+            //balls.at(0)->setRot(trans.getRotation().getX(), trans.getRotation().getY(), trans.getRotation().getZ(),
+                                //trans.getRotation().getW());
+
+            runNode2->setPosition(recvdCoords[0], recvdCoords[1], recvdCoords[2]);
+
+            //            SDLNet_TCP_Close(server);
+        }
+    }
+}
 //---------------------------------------------------------------------------
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
