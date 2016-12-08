@@ -15,9 +15,11 @@ public:
 	int id;
 	Type type;
 	int position;
+	bool multiplayer;
+	bool server;
 
 	Block();
-	Block(Ogre::SceneManager *newManager, int num, int z);
+	Block(Ogre::SceneManager *newManager, int num, int z, bool m, bool s);
 
 	//void setPos(int x, int y, int z);
 	//Ogre::Vector3 getPos();

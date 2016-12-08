@@ -235,7 +235,7 @@ void TutorialApplication::createScene(void)
   /* Start playing */
   SDL_PauseAudio(0);
 //Set Multiplayer
-  multiplayer = false;
+  multiplayer = true;
   isServer = true;
   //client = false;
   // Initialize ball velicity to 0
@@ -335,7 +335,7 @@ void TutorialApplication::createScene(void)
 //Create Blocks
   for(int i = 0; i < numBlocks; i++) {
 
-	blocks.push_back(new Block(mSceneMgr,i,2000+(2500*i)));
+	blocks.push_back(new Block(mSceneMgr,i,2000+(2500*i), multiplayer, server));
 	int blockType = blocks.at(i)->getType();
 	if(blockType == 0) {
 		blockShape = new btBoxShape(btVector3(75,25,50));
