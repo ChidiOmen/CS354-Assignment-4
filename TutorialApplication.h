@@ -23,6 +23,9 @@ http://www.ogre3d.org/wiki/
 #include <string>
 #include <sstream>
 #include <btBulletDynamicsCommon.h>
+#include <SDL_net.h>
+#include <SDL.h>
+#include<time.h>
 
 
 #include "Block.h"
@@ -36,8 +39,17 @@ class TutorialApplication : public BaseApplication
     virtual ~TutorialApplication(void);
     virtual void startBullet();
     virtual void endBullet();
+    bool isServer;
+    bool connectionOpened;
+    bool sceneCreated;
+	TCPsocket server;
+	TCPsocket client;
+    clock_t lastUpdate;
+    
 
   protected:
+    
+    
     CEGUI::Window *myImageWindow;
     CEGUI::Window *wpmWindow;
     CEGUI::Window *speedWindow;
@@ -63,7 +75,7 @@ class TutorialApplication : public BaseApplication
     int cameraHeight;
     bool flipping;
     double flipSpeed;
-
+    
 
 	std::vector<Block*> blocks;
 	Ogre::SceneNode* blockNode;
@@ -91,6 +103,7 @@ class TutorialApplication : public BaseApplication
     virtual void updateScore();
     virtual bool updateLives();
     virtual void resetGame();
+    virtual void updateClient();
     //virtual bool mouseMoved(const OIS::MouseEvent &me);
     virtual bool mousePressed(const OIS::MouseEvent &me,
         OIS::MouseButtonID id);
