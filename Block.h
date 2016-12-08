@@ -25,12 +25,17 @@ public:
 	//void collision();
 	int getID();
 	Ogre::SceneManager *blockManager;
-	Ogre::SceneNode* blockNode;
-	Ogre::Entity* blockEntity;
+	Ogre::SceneNode* blockNode1;
+	Ogre::Entity* blockEntity1;
+	Ogre::SceneNode* blockNode2;
+	Ogre::Entity* blockEntity2;
+	Ogre::SceneNode* blockNode3;
+	Ogre::Entity* blockEntity3;
 	void setPosition(int x, int y, int z);
 	void setSize(double x, double y, double z);
 	btVector3 getPosition();
 	int getZ();
+	int getType();
 
 	//btDefaultMotionState* blockMotionState;
 	//btCollisionShape* blockShape;

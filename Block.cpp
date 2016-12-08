@@ -10,7 +10,18 @@ Block::Block() {
 
 Block::Block(Ogre::SceneManager *newManager, int num, int z) {
 	id = num;
-	type = step;
+	int temp = rand()%2;
+	switch(temp) {
+		case (0): 
+		type = step;
+		break;
+		case (1): 
+		type = ceiling;
+		break;
+		case (2): 
+		type = pillar;
+		break;
+	}
 	position = z;
 	blockManager = newManager;
 	buildBlock();
@@ -36,48 +47,73 @@ int Block::getID()
 }
 
 
-void Block::buildBlock() {
-	blockNode = blockManager->getRootSceneNode()->createChildSceneNode();
-	blockEntity = blockManager->createEntity("block"+id, "Wood.mesh");
-	blockEntity->setCastShadows(true);
-	blockNode->attachObject(blockEntity);
+void Block::buildBlock() {	
 	switch(type) {
 		case step:
-			blockNode->setPosition(0,25,position);
-			//blockNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0.0, 1.0, 0.0)));
-			blockNode->setScale(75,25,50);
+			blockNode1 = blockManager->getRootSceneNode()->createChildSceneNode();
+			blockNode1->setPosition(0,25,position);
+			blockNode1->setScale(75,25,50);
+			blockEntity1 = blockManager->createEntity("block"+id, "Wood.mesh");
+			blockEntity1->setCastShadows(true);
+			blockNode1->attachObject(blockEntity1);
 		break;
 		case ceiling:
-			blockNode->setPosition(0,40,position);
-			//blockNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0.0, 1.0, 0.0)));
-			blockNode->setScale(75,25,50);
+			blockNode1 = blockManager->getRootSceneNode()->createChildSceneNode();
+			blockNode1->setPosition(0,115,position+100);
+			blockNode1->setScale(75,100,200);
+			blockEntity1 = blockManager->createEntity("block"+id, "Metal.mesh");
+			blockEntity1->setCastShadows(true);
+			blockNode1->attachObject(blockEntity1);
+
+			blockNode2 = blockManager->getRootSceneNode()->createChildSceneNode();
+			blockNode2->setPosition(-175,105,position+100);
+			blockNode2->setScale(40,25,200);
+			blockEntity2 = blockManager->createEntity("blockleft"+id, "Metal.mesh");
+			blockEntity2->setCastShadows(true);
+			blockNode2->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0.0, 0.0, 1.0)));
+			blockNode2->attachObject(blockEntity2);
+			
+			blockNode3 = blockManager->getRootSceneNode()->createChildSceneNode();
+			blockNode3->setPosition(175,105,position+100);
+			blockNode3->setScale(40,25,200);
+			blockEntity3 = blockManager->createEntity("blockright"+id, "Metal.mesh");
+			blockEntity3->setCastShadows(true);
+			blockNode3->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0.0, 0.0, 1.0)));
+			blockNode3->attachObject(blockEntity3);
 		break;
 		case pillar:
-			blockNode->setPosition(0,25,position);
-			//blockNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0.0, 1.0, 0.0)));
-			blockNode->setScale(75,25,50);
+			blockNode1 = blockManager->getRootSceneNode()->createChildSceneNode();
+			blockNode1->setPosition(0,25,position);
+			//blockNode1->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0.0, 1.0, 0.0)));
+			blockNode1->setScale(75,25,50);
+			blockEntity1 = blockManager->createEntity("block"+id, "Wood.mesh");
 		break;
 	}
 
-	/*blockShape = new btBoxShape(btVector3(75,25,50));
-	blockMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), btVector3(0,25,1000+(5000*id))));
-	btRigidBody::btRigidBodyConstructionInfo blockRigidBodyCI(0, blockMotionState, blockShape, btVector3(0,0,0));
-	blockRigidBody = new btRigidBody(blockRigidBodyCI);
-	blockRigidBody->setRestitution(1);
-	blockRigidBody->setFriction(0);
-	blockRigidBody->setDamping(0,0);
-	dynamicsWorld->addRigidBody(blockRigidBody);*/
+
 }
 
 void Block::setPosition(int x, int y, int z) {
-	blockNode->setPosition(Ogre::Vector3(x, y, z));
+	blockNode1->setPosition(Ogre::Vector3(x, y, z));
 }
 btVector3 Block::getPosition() {
-	int x = blockNode->getPosition().x;
-	int y = blockNode->getPosition().y;
-	int z = blockNode->getPosition().z;
+	int x = blockNode1->getPosition().x;
+	int y = blockNode1->getPosition().y;
+	int z = blockNode1->getPosition().z;
 	return btVector3(x,y,z);
 }
 int Block::getZ() {
 	return position;
+}
+int Block::getType() {
+	if(type==step){
+		return 0;
+	}
+	else if(type==ceiling) {
+		return 1;
+	}
+	else if(type==pillar) {
+		return 2;
+	}
+	else return 0;
 }

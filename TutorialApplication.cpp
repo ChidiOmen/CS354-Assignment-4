@@ -39,6 +39,8 @@ g++ -pthread -I/lusr/opt/ogre-1.9/include -I/lusr/opt/ogre-1.9/include/OGRE
 #include "BaseApplication.h"
 #include <ctime>
 #include <string>
+#include "Block.h"
+#define PI 3.1415926535898
 
 
 using namespace std;
@@ -110,8 +112,7 @@ void TutorialApplication::startBullet()
   dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
   dynamicsWorld->setGravity(btVector3(0, -10, 0));
 
-
-
+  cameraHeight = 100;
 
   runShape = new btBoxShape(btVector3(20, 0, 20));
   floorShape = new btBoxShape(btVector3(400, 1, trackLen*2+2000));
@@ -258,6 +259,7 @@ void TutorialApplication::createScene(void)
   wordCount=0;
   obstNum = 0;
   playerSpeed = 35;
+  flipping = false;
   runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
 
   // Initialize the position of the ball
@@ -277,6 +279,9 @@ void TutorialApplication::createScene(void)
   mAnimationState1->setEnabled(true);
   runNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(Ogre::Vector3(0,0,0));
   runNode->attachObject(runEnt);
+  if(multiplayer) {
+	runNode->setPosition(100,0,0);
+  }
   Ogre::Vector3 src = runNode->getOrientation() * Ogre::Vector3::UNIT_X;
   Ogre::Quaternion quat = src.getRotationTo(Ogre::Vector3(0,0,1));
   runNode->rotate(quat);
@@ -284,16 +289,18 @@ void TutorialApplication::createScene(void)
 
 //Player2
   if(multiplayer) {
-     Ogre::Entity* runEnt2 = mSceneMgr->createEntity("player2", "robot.mesh");
+     runEnt2 = mSceneMgr->createEntity("player2", "robot.mesh");
      runEnt2->setCastShadows(true);
      mAnimationState2 = runEnt2->getAnimationState("Walk");
      mAnimationState2->setLoop(true);
      mAnimationState2->setEnabled(true);
-     runNode->setPosition(100,0,0);
-     Ogre::Vector3 src = runNode->getOrientation() * Ogre::Vector3::UNIT_X;
+     runNode2 = mSceneMgr->getRootSceneNode()->createChildSceneNode(Ogre::Vector3(0,0,0));
+     runNode2->attachObject(runEnt2);
+     runNode2->setPosition(-100,0,0);
+     Ogre::Vector3 src = runNode2->getOrientation() * Ogre::Vector3::UNIT_X;
      Ogre::Quaternion quat = src.getRotationTo(Ogre::Vector3(0,0,1));
-     runNode->rotate(quat);
-     runNode->setScale(0.6, 0.4, 1);
+     runNode2->rotate(quat);
+     runNode2->setScale(0.6, 0.4, 1);
   }
 
 
@@ -319,45 +326,11 @@ void TutorialApplication::createScene(void)
   mSceneMgr->setShadowTechnique(Ogre::SHADOWTYPE_STENCIL_ADDITIVE);
 
   for(int i = 0; i < numBlocks; i++) {
-    /*int distance = rand() % 30000;
-    Ogre::Plane randomPlane(Ogre::Vector3::NEGATIVE_UNIT_Z, -1*distance);
-
-    Ogre::MeshManager::getSingleton().createPlane(
-      "floor" + i,
-      Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-      randomPlane,
-      100, 400, 20, 20,
-      true,
-      1, 5, 5,
-      Ogre::Vector3::UNIT_X);
-      Ogre::Entity* entity = mSceneMgr->createEntity("floor" + i);
-      entity->setMaterialName("Examples/BumpyMetal");
-      entity->setCastShadows(false);
-      mSceneMgr->getRootSceneNode()->createChildSceneNode(Ogre::Vector3(0, 50, 0))
-      ->attachObject(entity);
-
-      btDefaultMotionState* blockMotionState = new btDefaultMotionState(
-      btTransform(btQuaternion(0,0,0,1), btVector3(-200,0,distance)));
-      btRigidBody::btRigidBodyConstructionInfo floorRigidBodyCI(
-          0, blockMotionState, blockShape, btVector3(0, 0, 0));
-      blockRigidBodies[i] = new btRigidBody(floorRigidBodyCI);
-      blockRigidBodies[i]->setRestitution(0.8);
-      blockRigidBodies[i]->setFriction(0);
-      blockRigidBodies[i]->setDamping(0, 0);
-      dynamicsWorld->addRigidBody(blockRigidBodies[i]);*/
-
-//block code
-	/*blockEntity = mSceneMgr->createEntity("block"+i, "Wood.mesh");
-  	blockEntity->setCastShadows(true);
-  	blockNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-	blockNode->setPosition(Ogre::Vector3(0,25,1000+(5000*i)));
-	blockNode->attachObject(blockEntity);
-	blockNode->setScale(75,25,50);*/
 
 	blocks.push_back(new Block(mSceneMgr,i,2000+(5000*i)));
 
 	blockShape = new btBoxShape(btVector3(75,25,50));
-	blockMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), blocks.at(i)->getPosition()/*btVector3(0,25,1000+(5000*i))*/));
+	blockMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), blocks.at(i)->getPosition()));
 	btRigidBody::btRigidBodyConstructionInfo blockRigidBodyCI(0, blockMotionState, blockShape, btVector3(0,0,0));
 	blockRigidBodies[i] = new btRigidBody(blockRigidBodyCI);
 	blockRigidBodies[i]->setRestitution(1);
@@ -372,8 +345,7 @@ void TutorialApplication::createScene(void)
 void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
 
   mPos = runNode->getPosition();
-  
-  mCamera->setPosition(mPos + Ogre::Vector3(0, 100, -500));
+  mCamera->setPosition(mPos + Ogre::Vector3(0, cameraHeight, -500));
   //mCamera->lookAt(mPos);
 
   //so you dont accidentally get a trillion points at once
@@ -405,6 +377,9 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
       mAnimationState1->setEnabled(false);
   }
   else mAnimationState1->setEnabled(true);
+  if(multiplayer) {
+      mAnimationState2->setEnabled(true);
+  }
 
   btTransform trans;
   runRigidBody->getMotionState()->getWorldTransform(trans);
@@ -490,28 +465,81 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   else if(mPos.y <=1) {
       runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
   }
+//Flipping
+  if(flipping) {
+ 	Ogre::Vector3 src = runNode->getOrientation() * Ogre::Vector3::UNIT_Z;
+  	Ogre::Quaternion quat = src.getRotationTo(Ogre::Vector3(sqrt(0.5),1,0));
+  	runNode->rotate(quat);
+  }
+  if(mPos.y <= 1) {
+	flipping = false;
+	runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
+  }
 //Dodge function
 	int distance = ((int)(blocks.at(obstNum)->getZ() - mPos.z));
-	if(numTokens!=0 && obstNum<=numBlocks && distance < playerSpeed*4) {
-      		runRigidBody->setLinearVelocity(btVector3(0, 50, playerSpeed));
-          	if (numTokens == 1) {
-          	  lifeWindow1->setVisible(false);
-          	}
-          	else if (numTokens == 2) {
-          	  lifeWindow2->setVisible(false);
-          	}
-          	else if (numTokens == 3) {
-         	   lifeWindow3->setVisible(false);
-          	}
-         	else if (numTokens == 4) {
-         	  lifeWindow4->setVisible(false);
-         	}
-         	else if (numTokens == 5) {
-         	  lifeWindow5->setVisible(false);
-         	}
-		numTokens--;
-		if(obstNum!=numBlocks-1)
-			obstNum++;
+	switch(blocks.at(obstNum)->getType()) {
+		case 0:
+		if(numTokens!=0 && obstNum<=numBlocks && distance < playerSpeed*4+200) {
+      			runRigidBody->setLinearVelocity(btVector3(0, 40, playerSpeed+50));
+			flipping = true;
+        	  	if (numTokens == 1) {
+        	  	  lifeWindow1->setVisible(false);
+       	   		}
+        	  	else if (numTokens == 2) {
+          		  lifeWindow2->setVisible(false);
+          		}
+          		else if (numTokens == 3) {
+         		   lifeWindow3->setVisible(false);
+         	 	}
+         		else if (numTokens == 4) {
+         		  lifeWindow4->setVisible(false);
+         		}
+         		else if (numTokens == 5) {
+        	 	  lifeWindow5->setVisible(false);
+        	 	}
+			numTokens--;
+			if(obstNum!=numBlocks-1)
+				obstNum++;
+		}
+		break;
+		case 1:
+		if(numTokens!=0 && obstNum<=numBlocks) {
+			if(distance < playerSpeed*15 && distance >= -1000) {
+				runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(-1, -1, 1)));
+  				//cameraHeight = 10;
+  				mAnimationState1->setEnabled(false);
+      				runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed+100));
+			}
+			if(distance<-1000){
+        	  		if (numTokens == 1) {
+        	  		  lifeWindow1->setVisible(false);
+       	   			}
+        	  		else if (numTokens == 2) {
+          			  lifeWindow2->setVisible(false);
+          			}
+          			else if (numTokens == 3) {
+         			   lifeWindow3->setVisible(false);
+         	 		}
+         			else if (numTokens == 4) {
+         			  lifeWindow4->setVisible(false);
+         			}
+         			else if (numTokens == 5) {
+        	 		  lifeWindow5->setVisible(false);
+        	 		}
+				numTokens--;
+				if(obstNum!=numBlocks-1)
+					obstNum++;
+  				/*Ogre::Vector3 src = runNode->getOrientation() * Ogre::Vector3::UNIT_Z;
+  				Ogre::Quaternion quat = src.getRotationTo(Ogre::Vector3(sqrt(0.5),0,0));
+  				runNode->rotate(quat);*/
+				runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
+  				cameraHeight = 100;
+  				mAnimationState1->setEnabled(true);
+			}
+		}
+		break;
+		case 2:
+		break;
 	}
 
   /*if(rvz < 10){
@@ -524,8 +552,13 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
 //PRINTING
   // Displaying runner position
   //std::cout << mPos.x << " " << mPos.y << " " << mPos.z << std::endl;
-  //std::cout << (int)(blocks.at(obstNum)->getZ() - (int)(mPos.z)) << std::endl;
-  runNode->setPosition(Ogre::Vector3(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ()));
+  if(multiplayer) {
+  	runNode->setPosition(Ogre::Vector3(trans.getOrigin().getX()+100, trans.getOrigin().getY(), trans.getOrigin().getZ()));
+  	runNode2->setPosition(Ogre::Vector3(trans.getOrigin().getX()-100, trans.getOrigin().getY(), trans.getOrigin().getZ()));
+  }
+  else {
+  	runNode->setPosition(Ogre::Vector3(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ()));
+  } 
 }
 
 void TutorialApplication::CEGUI_setup(){
@@ -716,6 +749,7 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt){
   if(mShutDown)
     return false;
   mAnimationState1->addTime(evt.timeSinceLastFrame);
+  mAnimationState2->addTime(evt.timeSinceLastFrame);
 
   // Run game step
   TutorialApplication::gameStep(evt);

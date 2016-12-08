@@ -47,6 +47,7 @@ http://www.ogre3d.org/wiki/
 #  include <SdkCameraMan.h>
 
 #include <string>
+#include "Block.h"
 using namespace std;
 
 #endif
@@ -139,6 +140,8 @@ protected:
     // Universal entity: Runner
     Ogre::Entity*               runEnt;
     Ogre::SceneNode*            runNode;
+    Ogre::Entity*               runEnt2;
+    Ogre::SceneNode*            runNode2;
     Ogre::Vector3               mDir;
     Ogre::Vector3               mPos;
 

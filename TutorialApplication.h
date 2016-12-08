@@ -60,6 +60,9 @@ class TutorialApplication : public BaseApplication
     btScalar rvz;
     bool multiplayer;
     int obstNum;
+    int cameraHeight;
+    bool flipping;
+    double flipSpeed;
 
 
 	std::vector<Block*> blocks;
