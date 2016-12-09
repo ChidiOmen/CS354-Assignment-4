@@ -235,7 +235,7 @@ void TutorialApplication::createScene(void)
   /* Start playing */
   SDL_PauseAudio(0);
 //Set Multiplayer
-  multiplayer = true;
+  multiplayer = false;
   isServer = true;
   //client = false;
   // Initialize ball velicity to 0

@@ -103,18 +103,18 @@ void Block::buildBlock() {
 				blockEntity2 = blockManager->createEntity("blockright"+id, "Brick.mesh");
 				blockEntity2->setCastShadows(true);
 				blockNode2->attachObject(blockEntity2);
-				
+
 				blockNode3 = blockManager->getRootSceneNode()->createChildSceneNode();
 				blockNode3->setPosition(-50,100,position);
 				blockNode3->setScale(15,100,200);
-				blockEntity3 = blockManager->createEntity("bloc2k"+id, "Brick.mesh");
+				blockEntity3 = blockManager->createEntity("blockm"+id, "Brick.mesh");
 				blockEntity3->setCastShadows(true);
-				blockNode3->attachObject(blockEntity3);
+				blockNode3->attachObject(blockEntity1);
 	
 				blockNode4 = blockManager->getRootSceneNode()->createChildSceneNode();
 				blockNode4->setPosition(-150,100,position);
 				blockNode4->setScale(15,100,200);
-				blockEntity4 = blockManager->createEntity("bloc2kright"+id, "Brick.mesh");
+				blockEntity4 = blockManager->createEntity("blockmright"+id, "Brick.mesh");
 				blockEntity4->setCastShadows(true);
 				blockNode4->attachObject(blockEntity4);
 			}
@@ -122,14 +122,14 @@ void Block::buildBlock() {
 				blockNode1 = blockManager->getRootSceneNode()->createChildSceneNode();
 				blockNode1->setPosition(50,100,position);
 				blockNode1->setScale(15,100,200);
-				blockEntity1 = blockManager->createEntity("bloc2k"+id, "Brick.mesh");
+				blockEntity1 = blockManager->createEntity("block"+id, "Brick.mesh");
 				blockEntity1->setCastShadows(true);
 				blockNode1->attachObject(blockEntity1);
 	
 				blockNode2 = blockManager->getRootSceneNode()->createChildSceneNode();
 				blockNode2->setPosition(-50,100,position);
 				blockNode2->setScale(15,100,200);
-				blockEntity2 = blockManager->createEntity("bloc2kright"+id, "Brick.mesh");
+				blockEntity2 = blockManager->createEntity("blockright"+id, "Brick.mesh");
 				blockEntity2->setCastShadows(true);
 				blockNode2->attachObject(blockEntity2);
 			}
@@ -139,14 +139,14 @@ void Block::buildBlock() {
 				blockNode1 = blockManager->getRootSceneNode()->createChildSceneNode();
 				blockNode1->setPosition(-100,25,position+350);
 				blockNode1->setScale(5,25,400);
-				blockEntity1 = blockManager->createEntity("blockright"+id, "Brick.mesh");
+				blockEntity1 = blockManager->createEntity("block"+id, "Metal.mesh");
 				blockEntity1->setCastShadows(true);
 				blockNode1->attachObject(blockEntity1);
 
 				blockNode2 = blockManager->getRootSceneNode()->createChildSceneNode();
 				blockNode2->setPosition(100,25,position+350);
 				blockNode2->setScale(5,25,400);
-				blockEntity2 = blockManager->createEntity("bloc2kright"+id, "Brick.mesh");
+				blockEntity2 = blockManager->createEntity("blockm"+id, "Metal.mesh");
 				blockEntity2->setCastShadows(true);
 				blockNode2->attachObject(blockEntity2);
 			}
@@ -154,19 +154,19 @@ void Block::buildBlock() {
 				blockNode1 = blockManager->getRootSceneNode()->createChildSceneNode();
 				blockNode1->setPosition(0,25,position+350);
 				blockNode1->setScale(5,25,400);
-				blockEntity1 = blockManager->createEntity("blockright"+id, "Brick.mesh");
+				blockEntity1 = blockManager->createEntity("block"+id, "Metal.mesh");
 				blockEntity1->setCastShadows(true);
 				blockNode1->attachObject(blockEntity1);
 			}
 		break;
-		case sideRun: 
+		/*case sideRun: 
 			blockNode1 = blockManager->getRootSceneNode()->createChildSceneNode();
 			blockNode1->setPosition(-100,100,position+350);
 			blockNode1->setScale(15,100,400);
 			blockEntity1 = blockManager->createEntity("block"+id, "Metal.mesh");
 			blockEntity1->setCastShadows(true);
 			blockNode1->attachObject(blockEntity1);
-		break;
+		break;*/
 	}
 
 
