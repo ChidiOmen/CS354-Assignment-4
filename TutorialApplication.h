@@ -63,6 +63,7 @@ class TutorialApplication : public BaseApplication
     bool gameEnd;
     int dodgeTimer;
     clock_t startTime;
+    btTransform trans;
     //Ogre::Real mSpd;
     //Ogre::Real pointTimer;
     int scoreCount;
