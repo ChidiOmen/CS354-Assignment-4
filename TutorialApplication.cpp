@@ -137,6 +137,7 @@ void TutorialApplication::startBullet()
   dynamicsWorld->addRigidBody(floorRigidBody);
   
   runMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), btVector3(0,0,0)));
+
   btScalar runMass = 3;
   btVector3 runInertia(0, 0, 0);
   runShape->calculateLocalInertia(runMass, runInertia);
@@ -147,6 +148,13 @@ void TutorialApplication::startBullet()
   runRigidBody->setFriction(0);
   runRigidBody->setDamping(0, 0);
   runRigidBody->setLinearFactor(btVector3(0, 1, 1));
+  if(multiplayer) {
+	if(isServer) {
+  		runRigidBody->translate(btVector3(100,0,0));
+	}
+	else {
+  		runRigidBody->translate(btVector3(-100,0,0));
+	}
   dynamicsWorld->addRigidBody(runRigidBody);
 
 
@@ -359,6 +367,7 @@ void TutorialApplication::createScene(void)
 
 	blocks.push_back(new Block(mSceneMgr,i,2000+(3000*i), multiplayer, server));
 	int blockType = blocks.at(i)->getType();
+	//Step
 	if(blockType == 0) {
 		blockShape = new btBoxShape(btVector3(75,25,50));
 		blockMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), blocks.at(i)->getPosition()));
@@ -380,6 +389,7 @@ void TutorialApplication::createScene(void)
 		dynamicsWorld->addRigidBody(blockRigidBodies[i]);
 		break;
 		}
+	//Gap
 	case 2: {
 		blockShape = new btBoxShape(btVector3(15,100,200));
 		blockMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), blocks.at(i)->getPosition()));
@@ -392,8 +402,10 @@ void TutorialApplication::createScene(void)
 		break;
 		}
 	}*/
+	//Rail
 	if(blockType == 3) {
 		blockShape = new btBoxShape(btVector3(5,25,400));
+		std::cout<<blocks.at(i)->getPosition()<<std::endl;
 		blockMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), blocks.at(i)->getPosition()));
 		btRigidBody::btRigidBodyConstructionInfo blockRigidBodyCI(0, blockMotionState, blockShape, btVector3(0,0,0));
 		blockRigidBodies[i] = new btRigidBody(blockRigidBodyCI);
@@ -799,7 +811,7 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   //std::cout << mPos.x << " " << mPos.y << " " << mPos.z << std::endl;
   if(multiplayer) {
     if(isServer) {
-  	 runNode->setPosition(Ogre::Vector3(trans.getOrigin().getX()+100, trans.getOrigin().getY(), trans.getOrigin().getZ()));
+  	 runNode->setPosition(Ogre::Vector3(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ()));
   	 //runNode2->setPosition(Ogre::Vector3(trans.getOrigin().getY(), trans.getOrigin().getZ()));
       updateClient();
     }
@@ -1064,7 +1076,6 @@ void TutorialApplication::updateClient()
         update = getCurrentTime() - lastUpdate > 16;
     }
 
-	std::cout<<update<<std::endl;
     if (update) {
         if(isServer)
         {
