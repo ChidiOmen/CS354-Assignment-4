@@ -70,6 +70,7 @@ bool BaseApplication::configure(void)
         // If returned true, user clicked OK so initialise.
         // Here we choose to let the system create a default rendering window by passing 'true'.
         mWindow = mRoot->initialise(true, "TutorialApplication Render Window");
+	//mWindow->setFullscreen(true,1920,1200);
 
         return true;
     }
@@ -131,8 +132,8 @@ void BaseApplication::createFrameListener(void)
     mInputContext.mKeyboard = mKeyboard;
     mInputContext.mMouse = mMouse;
     mTrayMgr = new OgreBites::SdkTrayManager("InterfaceName", mWindow, mInputContext, this);
-    mTrayMgr->showFrameStats(OgreBites::TL_BOTTOMLEFT);
-    mTrayMgr->showLogo(OgreBites::TL_BOTTOMRIGHT);
+    //mTrayMgr->showFrameStats(OgreBites::TL_BOTTOMLEFT);
+    //mTrayMgr->showLogo(OgreBites::TL_BOTTOMRIGHT);
     mTrayMgr->hideCursor();
 
     // Create a params panel for displaying sample details

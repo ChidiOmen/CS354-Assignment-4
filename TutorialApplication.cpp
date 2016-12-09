@@ -48,8 +48,8 @@ g++ -pthread -I/lusr/opt/ogre-1.9/include -I/lusr/opt/ogre-1.9/include/OGRE
 
 using namespace std;
 
-const int numBlocks = 9;
-const int trackLen = 14000;
+const int numBlocks = 10;
+const int trackLen = 20000;
 
 btDefaultCollisionConfiguration* collisionConfiguration;
 btCollisionDispatcher* dispatcher;
@@ -118,7 +118,7 @@ void TutorialApplication::startBullet()
   cameraHeight = 100;
 
   runShape = new btBoxShape(btVector3(20, 0, 20));
-  floorShape = new btBoxShape(btVector3(400, 1, trackLen*2+2000));
+  floorShape = new btBoxShape(btVector3(400, 1, trackLen*2+2000));//Physics Length
   blockShape = new btBoxShape(btVector3(400, 100, 1));
 
   btTransform startTransform;
@@ -127,7 +127,7 @@ void TutorialApplication::startBullet()
   startTransform.setOrigin(btVector3(0, 0, 0));
 
   floorMotionState = new btDefaultMotionState(
-      btTransform(btQuaternion(0,0,0,1), btVector3(-200,0,trackLen)));
+      btTransform(btQuaternion(0,0,0,1), btVector3(-200,0,trackLen))); //Physics Translate
   btRigidBody::btRigidBodyConstructionInfo floorRigidBodyCI(
       0, floorMotionState, floorShape, btVector3(0, 0, 0));
   floorRigidBody = new btRigidBody(floorRigidBodyCI);
@@ -237,6 +237,8 @@ void TutorialApplication::createScene(void)
 //Set Multiplayer
   multiplayer = false;
   isServer = true;
+  finished = false;
+  delay = true;
   //client = false;
   // Initialize ball velicity to 0
   int initX = 0;
@@ -259,8 +261,8 @@ void TutorialApplication::createScene(void)
   if (ballVel.length() != 0) {
     ballVel *= maxSpeed/ballVel.length();
   }
-
-  clock_t startTime = clock();
+  
+  startTime = clock();
   wordCount=0;
   obstNum = 0;
   playerSpeed = 35;
@@ -275,6 +277,8 @@ void TutorialApplication::createScene(void)
   // Ambient light set in RGB
   mSceneMgr->setAmbientLight(Ogre::ColourValue(0.5, 0.5, 0.5));
 
+  mCamera->setPosition(mPos + Ogre::Vector3(0, cameraHeight, -500));
+
   //Set overall timer
   gameTimer = 1;
 
@@ -287,9 +291,6 @@ void TutorialApplication::createScene(void)
   mAnimationState1->setEnabled(true);
   runNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(Ogre::Vector3(0,0,0));
   runNode->attachObject(runEnt);
-  if(multiplayer) {
-	runNode->setPosition(75,0,0);
-  }
   Ogre::Vector3 src = runNode->getOrientation() * Ogre::Vector3::UNIT_X;
   Ogre::Quaternion quat = src.getRotationTo(Ogre::Vector3(0,0,1));
   runNode->rotate(quat);
@@ -304,7 +305,6 @@ void TutorialApplication::createScene(void)
      mAnimationState2->setEnabled(true);
      runNode2 = mSceneMgr->getRootSceneNode()->createChildSceneNode(Ogre::Vector3(0,0,0));
      runNode2->attachObject(runEnt2);
-     //runNode2->setPosition(-75,0,0);
      Ogre::Vector3 src = runNode2->getOrientation() * Ogre::Vector3::UNIT_X;
      Ogre::Quaternion quat = src.getRotationTo(Ogre::Vector3(0,0,1));
      runNode2->rotate(quat);
@@ -318,18 +318,35 @@ void TutorialApplication::createScene(void)
       "floor",
       Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
       plane,
-      400, 30000, 20, 20,
+      400, 300000, 20, 20,
       true,
       1, 5, 5,
       Ogre::Vector3::UNIT_Z);
   Ogre::Entity* floorEntity = mSceneMgr->createEntity("floor");
   Ogre::SceneNode* floorNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
   floorNode->attachObject(floorEntity);
-  floorNode->setPosition(0,0,trackLen);
+  floorNode->setPosition(0,0,0);
   floorEntity->setCastShadows(false);
 
   floorEntity->setMaterialName("Examples/CloudySky");
+//Create Finish Line
 
+  /*Ogre::Plane plane2(Ogre::Vector3::UNIT_Z,0);
+  Ogre::MeshManager::getSingleton().createPlane(
+      "finishWall",
+      Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+      plane,
+      1500, 1500, 20, 20,
+      true,
+      1, 5, 5,
+      Ogre::Vector3::UNIT_Y);
+  Ogre::Entity* finishEntity = mSceneMgr->createEntity("finishWall");
+  Ogre::SceneNode* finishNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+  finishNode->attachObject(finishEntity);
+  finishNode->setPosition(10000,5000,5000);
+  //finishEntity->setCastShadows(false);
+
+  //finishEntity->setMaterialName("Examples/Rockwall");*/
 
   mSceneMgr->setShadowTechnique(Ogre::SHADOWTYPE_STENCIL_ADDITIVE);
 //Create Blocks
@@ -396,6 +413,33 @@ void TutorialApplication::createScene(void)
 
 // Game loop code
 void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
+  if(delay) {
+	gameTimer = clock()/CLOCKS_PER_SEC;
+	mAnimationState1->setEnabled(false);
+	if(gameTimer<1) {
+  		delayWindow->setText("5");
+	}
+	else if(gameTimer<2) {
+  		delayWindow->setText("4");
+	}
+	else if(gameTimer<3) {
+  		delayWindow->setText("3");
+	}
+	else if(gameTimer<4) {
+ 		delayWindow->setText("2");
+	}
+	else if(gameTimer<5) {
+  		delayWindow->setText("1");
+	}
+	else if(gameTimer>5) {
+		delay = false;
+		userInput = "";
+  		delayWindow->setVisible(false);
+		mAnimationState1->setEnabled(true);
+		startTime = clock();
+	}
+  }
+  else if(!delay) {
   if(isServer) {
     mPos = runNode->getPosition();
   }
@@ -413,16 +457,18 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   // Step Simulation
   dynamicsWorld->stepSimulation(1 / 60.f, 10);
 
-//finish line
-  if(mPos.z>=27000) {
+//FINISH LINE
+  if(mPos.z>=trackLen * 2) {
      //playerSpeed*=0.995;
        playerSpeed=0;
        runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
+       mAnimationState1->setEnabled(false);
        goWindow->setText("YOU FINISHED IN " + Ogre::StringConverter::toString(gameTimer) + " seconds!");
        goWindow->setVisible(true);
+       finished = true;
   }
   else if(CLOCKS_PER_SEC != 0){
-    gameTimer = clock()/CLOCKS_PER_SEC;
+    gameTimer = clock()/CLOCKS_PER_SEC -5;
   }
 
   myImageWindow->setText("Time: " + Ogre::StringConverter::toString(gameTimer) + " seconds");
@@ -431,7 +477,7 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   }
   speedWindow->setText("Speed: " + Ogre::StringConverter::toString(rvz) + "m/s");
 
-  if(rvz==0) {
+  if(rvz==0 || finished) {
       mAnimationState1->setEnabled(false);
   }
   else mAnimationState1->setEnabled(true);
@@ -459,7 +505,7 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   }
 
   //Resets GUI if player wants to restart
-  if(gameEnd && mKeyboard->isKeyDown(OIS::KC_RETURN)){
+  if(finished && mKeyboard->isKeyDown(OIS::KC_RETURN)){
     resetGame();
     runRigidBody->translate(btVector3(-1*trans.getOrigin().getX(), -1*trans.getOrigin().getY(), -1*trans.getOrigin().getZ()));
     runRigidBody->setLinearVelocity(btVector3(10*initX, 10*initY, 10*initZ));
@@ -467,7 +513,7 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
     mPos = Ogre::Vector3::ZERO;
     runNode->setPosition(mPos);
     play_sound(0);
-    gameEnd = false;
+    finished = false;
   }
  
   mPos.x = trans.getOrigin().getX();
@@ -480,8 +526,10 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   rvz = runVel.getZ();
 
   //Change User's Input
-  typedWord1->setText(userInput);
-  typedWord2->setText(userInput);
+  if(!finished){
+  	typedWord1->setText(userInput);
+  	typedWord2->setText(userInput);
+  }
   if(dodgeWord.compare(userInput)==0) {
       userInput = "";
       do {
@@ -489,7 +537,7 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
       }while(speedWord.compare(dodgeWord)==0);
       typingWord1->setText(dodgeWord);
       	//runRigidBody->setLinearVelocity(btVector3(0, 50, playerSpeed));
-      if(runRigidBody && mPos.y <= 1) {
+      if(runRigidBody) {
 //Number of Tokens
         if (numTokens < 3) {
           numTokens++;
@@ -527,20 +575,20 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
 //Flipping
   if(flipping) {
 	runNode->roll(Ogre::Degree(-0.75));
-  }
-  if(mPos.y <= 1) {
-	flipping = false;
-	runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
+  	if(mPos.y <= 1) {
+		flipping = false;
+		runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
+	}
   }
 //Sliding
   if(sliding) {
 	runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI, Ogre::Vector3(0, 1, 0)));
   	mAnimationState1->setEnabled(false);
-  }
-  if(mPos.y <= 1) {
-	sliding = false;
-	runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
-  	mAnimationState1->setEnabled(true);
+  	if(mPos.y <= 1) {
+		sliding = false;
+		runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
+	  	mAnimationState1->setEnabled(true);
+	}
   }
 //Grinding
   if(grinding) {
@@ -757,13 +805,13 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   }
   else {
   	runNode->setPosition(Ogre::Vector3(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ()));
+  }
   } 
 }
 
 void TutorialApplication::CEGUI_setup(){
   using namespace std;
   using namespace CEGUI;
-  gameEnd = false;
   iscore = 0;
   scoreCount = 0;
   lifecounter = 3;
@@ -782,19 +830,25 @@ void TutorialApplication::CEGUI_setup(){
   myImageWindow = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","Time");
   myImageWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0,0),CEGUI::UDim(0,0)));
   myImageWindow->setSize(USize(UDim(0.2,0),UDim(0.04,0)));
-  myImageWindow->setText("Time: " + Ogre::StringConverter::toString("0 seconds"));
+  myImageWindow->setText("Time: 0 seconds");// + Ogre::StringConverter::toString("0 seconds"));
   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(myImageWindow);
+
+  delayWindow = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","Delay");
+  delayWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0.49,0),CEGUI::UDim(0.49,0)));
+  delayWindow->setSize(USize(UDim(0.02,0),UDim(0.04,0)));
+  delayWindow->setText("5");
+  CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(delayWindow);
   
   wpmWindow = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","WordsPerMinute");
   wpmWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0,0),CEGUI::UDim(0.04,0)));
   wpmWindow->setSize(USize(UDim(0.2,0),UDim(0.04,0)));
-  wpmWindow->setText("Words: " + Ogre::StringConverter::toString(wordCount));
+  wpmWindow->setText("Words: 0");// + Ogre::StringConverter::toString(wordCount));
   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(wpmWindow);
   
   speedWindow = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","Speed");
   speedWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0,0),CEGUI::UDim(0.08,0)));
   speedWindow->setSize(USize(UDim(0.2,0),UDim(0.04,0)));
-  speedWindow->setText("Speed: " + Ogre::StringConverter::toString(rvz) + "m/s");
+  speedWindow->setText("Speed: 0m/s");// + Ogre::StringConverter::toString(rvz) + "m/s");
   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(speedWindow);
 
   //CEGUI Life indicator
@@ -836,7 +890,7 @@ void TutorialApplication::CEGUI_setup(){
   soundToggle->setText("Toggle Sound: Right Mouse");
   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(soundToggle);
 
-  //Create text box to indicate lives 
+  //Create text box to indicate tokens 
   CEGUI::Window *lifeIndicator = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","lifeIndicatorW");
   lifeIndicator->setPosition(CEGUI::UVector2(CEGUI::UDim(0.465,0),CEGUI::UDim(0.25,0)));
   lifeIndicator->setSize(USize(UDim(0.07,0),UDim(0.04,0)));
@@ -930,11 +984,15 @@ void TutorialApplication::resetGame(){
   lifeWindow4->setVisible(false);
   lifeWindow5->setVisible(false);
   goWindow->setVisible(false);
-  iscore = 0;
-  scoreCount = 0;
-  myImageWindow->setText("Score: 0");
-  mSpd = 50;
+  startTime = clock();
+  playerSpeed = 35;
+  wordCount = 0;
+  numTokens = 0;
   pointMultiplier = 1;
+  //mPos = Ogre::Vector3(0,0,0);
+  //runNode->setPosition(0,0,0);
+  //runRigidBody->translate(btVector3(-1*trans.getOrigin().getX(), -1*trans.getOrigin().getY(), -1*trans.getOrigin().getZ()));
+  //runRigidBody->setLinearVelocity(btVector3(0,0,playerSpeed));
 }
 
 

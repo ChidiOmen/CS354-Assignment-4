@@ -53,13 +53,16 @@ class TutorialApplication : public BaseApplication
     CEGUI::Window *myImageWindow;
     CEGUI::Window *wpmWindow;
     CEGUI::Window *speedWindow;
+    CEGUI::Window *delayWindow;
     CEGUI::Window *lifeWindow1;
     CEGUI::Window *lifeWindow2;
     CEGUI::Window *lifeWindow3;
     CEGUI::Window *lifeWindow4;
     CEGUI::Window *lifeWindow5;
     CEGUI::Window *goWindow;
+    CEGUI::Window *countdownWindow;
     bool gameEnd;
+    clock_t startTime;
     int iscore;
     int lifecounter;
     Ogre::Real mSpd;
@@ -77,8 +80,9 @@ class TutorialApplication : public BaseApplication
     bool sliding;
     bool grinding;
     bool sideRunning;
+    bool finished;
+    bool delay;
     double flipSpeed;
-    
 
 	std::vector<Block*> blocks;
 	Ogre::SceneNode* blockNode;
