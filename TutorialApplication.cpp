@@ -136,7 +136,17 @@ void TutorialApplication::startBullet()
   floorRigidBody->setDamping(0, 0);
   dynamicsWorld->addRigidBody(floorRigidBody);
   
-  runMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), btVector3(0,0,0)));
+  if(multiplayer) {
+	if(isServer) {
+  		runMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), btVector3(100,0,0)));
+	}
+	else {
+  		runMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), btVector3(-100,0,0)));
+	}
+  }
+  else {
+  	runMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), btVector3(0,0,0)));
+  }
 
   btScalar runMass = 3;
   btVector3 runInertia(0, 0, 0);
@@ -148,14 +158,7 @@ void TutorialApplication::startBullet()
   runRigidBody->setFriction(0);
   runRigidBody->setDamping(0, 0);
   runRigidBody->setLinearFactor(btVector3(0, 1, 1));
-  if(multiplayer) {
-	if(isServer) {
-  		runRigidBody->translate(btVector3(100,0,0));
-	}
-	else {
-  		runRigidBody->translate(btVector3(-100,0,0));
-	}
-  }
+  //runRigidBody->translate(btVector3(100,0,0));
   dynamicsWorld->addRigidBody(runRigidBody);
 
 
@@ -200,6 +203,12 @@ void TutorialApplication::createScene(void)
 
   //CEGUI setup
 
+  multiplayer = true;
+  isServer = true;
+  finished = false;
+  delay = false;
+  dodgeTimer = 100;
+  speedTimer = 100;
   startBullet();
   CEGUI_setup();
   // Start channel
@@ -244,12 +253,6 @@ void TutorialApplication::createScene(void)
   /* Start playing */
   SDL_PauseAudio(0);
 //Set Multiplayer
-  multiplayer = true;
-  isServer = true;
-  finished = false;
-  delay = false;
-  dodgeTimer = 100;
-  speedTimer = 100;
   //client = false;
   // Initialize ball velicity to 0
   int initX = 0;
@@ -817,7 +820,7 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
       updateClient();
     }
     else{
-      runNode2->setPosition(Ogre::Vector3(trans.getOrigin().getX()-100, trans.getOrigin().getY(), trans.getOrigin().getZ()));
+      runNode2->setPosition(Ogre::Vector3(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ()));
       //runNode->setPosition(Ogre::Vector3(trans.getOrigin().getX()-100, trans.getOrigin().getY(), trans.getOrigin().getZ()));
       updateClient();
     }
