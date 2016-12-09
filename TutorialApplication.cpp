@@ -922,6 +922,7 @@ void TutorialApplication::CEGUI_setup(){
   delayWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0.49,0),CEGUI::UDim(0.49,0)));
   delayWindow->setSize(USize(UDim(0.02,0),UDim(0.04,0)));
   delayWindow->setText("5");
+  delayWindow->setVisible(false);
   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(delayWindow);
 
   wpmWindow = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","WordsPerMinute");
