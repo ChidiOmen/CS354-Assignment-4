@@ -502,7 +502,7 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
       mAnimationState2->setEnabled(true);
   }
 
-  trans;
+  btTransform trans;
   runRigidBody->getMotionState()->getWorldTransform(trans);
 
   // Do inputs: mouseMoved() is below
@@ -1044,8 +1044,9 @@ void TutorialApplication::updateClient()
      * bringing us to  12 + (12 + 32) = 56 bytes = 448 bits */
 
     /* Contains information of the rotation of the ball within "trans" */
-    //btTransform trans;
+    btTransform trans;
     //engine->ballRigidBody.at(0)->getMotionState()->getWorldTransform(trans);
+    runRigidBody->getMotionState()->getWorldTransform(trans);
 
     /* Might need to get the position and rotation of the ball using
     the get() functions */
@@ -1096,7 +1097,7 @@ void TutorialApplication::updateClient()
 
             // Arrays preparing to use memcpy
             float sendCoords[3] = {runNode->getPosition().x, runNode->getPosition().y, runNode->getPosition().z};
-	    //double sendOrientation[4] = {trans.getRotation().getX(),trans.getRotation().getY(),trans.getRotation().getZ(),trans.getRotation().getW()};
+	    double sendOrientation[4] = {trans.getRotation().getX(),trans.getRotation().getY(),trans.getRotation().getZ(),trans.getRotation().getW()};
             //int sendOrientation[3] = {playerOrientation->x, playerOrientation->y, playerOrientation->z};
             //double sendBRot[4] = {bRotX, bRotY, bRotZ, bRotW};
             //int sendScore[2] = {p1lives, p2lives};
@@ -1115,11 +1116,11 @@ void TutorialApplication::updateClient()
                 {
                     // Memcpy functions (Arrays may need '&' symbol before them)
                     memcpy(sendBuffer, &sendCoords, sizeof(float)*3); // <-- this one
-                    //memcpy(&sendBuffer[sizeof(float)*3], &sendOrientation, sizeof(int)*3);
+                    memcpy(&sendBuffer[sizeof(float)*3], &sendOrientation, sizeof(double)*4);
                     //memcpy(&sendBuffer[sizeof(float)*2 + sizeof(int)*3], &sendBRot, sizeof(double)*4);
                     //memcpy(&sendBuffer[sizeof(float)*2 + sizeof(int)*3 + sizeof(double)*4], &sendScore, sizeof(int)*2);
 		    //memcpy(sendBuffer, &sendCoords, sizeof(double)*4);
-                    SDLNet_TCP_Send(client, sendBuffer, sizeof(float)*3 + sizeof(int)*9);
+                    SDLNet_TCP_Send(client, sendBuffer, sizeof(float)*3 + sizeof(double)*4);
                     break;
                 }
                 mKeyboard->capture();
@@ -1136,13 +1137,13 @@ void TutorialApplication::updateClient()
 	    double recvdOrientation[4];
             // Need to also receive paddle collision info to render in physics engine
             memcpy(&recvdCoords, recvBuffer, sizeof(float)*3);
-            //memcpy(&recvdOrientation, recvBuffer, sizeof(double)*4);
+            memcpy(&recvdOrientation, recvBuffer, sizeof(double)*4);
             //paddleCoords = &paddle2->position;
             //playerCoords->x = recvdCoords[0];
             //playerCoords->y = recvdCoords[1];
             //playerCoords->z = recvdCoords[2];
             runNode2->setPosition(recvdCoords[0], recvdCoords[1], recvdCoords[2]);
-	    //runNode2->setOrientation(recvdOrientation[0],recvdOrientation[1],recvdOrientation[2],recvdOrientation[3]);
+	    runNode2->setOrientation(recvdOrientation[0],recvdOrientation[1],recvdOrientation[2],recvdOrientation[3]);
 	    //runNode2->setOrientation(recvdOrientation);
 
             //            SDLNet_TCP_Close(client);
@@ -1164,22 +1165,22 @@ void TutorialApplication::updateClient()
             char sendBuffer[100];
             //Ogre::Vector3* playerCoords = runNode2->getPosition();
             float sendCoords[3] = {runNode2->getPosition().x, runNode2->getPosition().y, runNode2->getPosition().z};
-	    //double sendOrientation[4] = {trans.getRotation().getX(),trans.getRotation().getY(),trans.getRotation().getZ(),trans.getRotation().getW()};
+	    double sendOrientation[4] = {trans.getRotation().getX(),trans.getRotation().getY(),trans.getRotation().getZ(),trans.getRotation().getW()};
             memcpy(sendBuffer, &sendCoords, sizeof(float)*3);
-            //memcpy(sendBuffer, &sendOrientation, sizeof(int)*9);
-            SDLNet_TCP_Send(server,sendBuffer,sizeof(float)*3 + sizeof(int)*9);
+            memcpy(sendBuffer, &sendOrientation, sizeof(double)*4);
+            SDLNet_TCP_Send(server,sendBuffer,sizeof(float)*3 + sizeof(double)*4);
 
             char recvBuffer[500];
             SDLNet_TCP_Recv(server,recvBuffer,500);
 
             float recvdCoords[3];
-	    //double recvdOrientation[4];
+	    double recvdOrientation[4];
             //int recvdBPos[3];
             //double recvdBRot[4];
             //int recvdScore[2];
 
             memcpy(recvdCoords, &recvBuffer, sizeof(float)*3);
-            //memcpy(recvdOrientation, &recvBuffer, sizeof(double)*4);
+            memcpy(recvdOrientation, &recvBuffer, sizeof(double)*4);
             //memcpy(&recvdOrientation, &recvBuffer[sizeof(float)*3], sizeof(int)*3);
             //memcpy(&recvdBRot, &recvBuffer[sizeof(float)*2 + sizeof(int)*3], sizeof(double)*4);
             //memcpy(&recvdScore, &recvBuffer[sizeof(float)*2 + sizeof(int)*3 + sizeof(double)*4], sizeof(int)*2);
@@ -1209,7 +1210,7 @@ void TutorialApplication::updateClient()
                                 //trans.getRotation().getW());
 
             runNode->setPosition(recvdCoords[0], recvdCoords[1], recvdCoords[2]);
-	    //runNode->setOrientation(recvdOrientation[0],recvdOrientation[1],recvdOrientation[2],recvdOrientation[3]);
+	    runNode->setOrientation(recvdOrientation[0],recvdOrientation[1],recvdOrientation[2],recvdOrientation[3]);
 
             //            SDLNet_TCP_Close(server);
         }
