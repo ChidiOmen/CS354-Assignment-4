@@ -603,35 +603,65 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   }
 //Flipping
   if(flipping) {
-	runNode->roll(Ogre::Degree(-0.75));
+	if(isServer) 
+		runNode->roll(Ogre::Degree(-0.75));
+	else 
+		runNode2->roll(Ogre::Degree(-0.75));
   	if(mPos.y <= 1) {
 		flipping = false;
-		runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
+		if(isServer) 
+			runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
+		else
+			runNode2->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
 	}
   }
 //Sliding
   if(sliding) {
-	runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI, Ogre::Vector3(0, 1, 0)));
-  	mAnimationState1->setEnabled(false);
+	if(isServer) {
+		runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI, Ogre::Vector3(0, 1, 0)));
+  		mAnimationState1->setEnabled(false);
+	}
+	else { 
+		runNode2->setOrientation(Ogre::Quaternion((Ogre::Radian)PI, Ogre::Vector3(0, 1, 0)));
+  		mAnimationState2->setEnabled(false);
+	}
   	if(mPos.y <= 1) {
 		sliding = false;
-		runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
-	  	mAnimationState1->setEnabled(true);
+		if(isServer) {
+			runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
+	  		mAnimationState1->setEnabled(true);
+		}
+		else {
+			runNode2->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
+	  		mAnimationState2->setEnabled(true);
+		}
 	}
   }
 //Grinding
   if(grinding) {
-	runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI, Ogre::Vector3(0, 0, 0)));
-  	mAnimationState1->setEnabled(false);
+	if(isServer) {
+		runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI, Ogre::Vector3(0, 0, 0)));
+  		mAnimationState1->setEnabled(false);
+	}
+	else {
+		runNode2->setOrientation(Ogre::Quaternion((Ogre::Radian)PI, Ogre::Vector3(0, 0, 0)));
+  		mAnimationState2->setEnabled(false);
+	}
   	if(mPos.y <= 1) {
 		playerSpeed -= 50;
 		grinding = false;
-		runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
-	  	mAnimationState1->setEnabled(true);
+		if(isServer) {
+			runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
+	  		mAnimationState1->setEnabled(true);
+		}
+		else {
+			runNode2->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
+	  		mAnimationState2->setEnabled(true);
+		}
 	}
   }
 //Side Running
-  if(sideRunning) {
+  /*if(sideRunning) {
 	runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(1, 1, 1)));
   	if(mPos.y <= 1) {
 		runRigidBody->setLinearVelocity(btVector3(10, 0, playerSpeed));
@@ -641,7 +671,7 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
 			sideRunning = false;
 		}
 	}
-  }
+  }*/
 	int distance;
 	if(obstNum <= numBlocks -1){
 		distance = ((int)(blocks.at(obstNum)->getZ() - mPos.z));
@@ -698,9 +728,14 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
 		case 1:
 		if(numTokens!=0 && obstNum<=numBlocks) {
 			if(distance < playerSpeed*10 && distance >= -1000) {
-				runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(-1, -1, 1)));
-  				//cameraHeight = 10;
-  				mAnimationState1->setEnabled(false);
+				if(isServer) {
+					runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(-1, -1, 1)));
+  					mAnimationState1->setEnabled(false);
+				}
+				else {
+					runNode2->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(-1, -1, 1)));
+  					mAnimationState2->setEnabled(false);
+				}
       				runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed+100));
 			}
 			if(distance<-1000){
@@ -724,9 +759,15 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   				/*Ogre::Vector3 src = runNode->getOrientation() * Ogre::Vector3::UNIT_Z;
   				Ogre::Quaternion quat = src.getRotationTo(Ogre::Vector3(sqrt(0.5),0,0));
   				runNode->rotate(quat);*/
-				runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
+				if(isServer) 
+					runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
+  					mAnimationState1->setEnabled(true);
+				}
+				else {
+					runNode2->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
+  					mAnimationState2->setEnabled(true);
+				}
   				cameraHeight = 100;
-  				mAnimationState1->setEnabled(true);
 			}
 		}
 		break;
