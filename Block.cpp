@@ -136,18 +136,25 @@ void Block::buildBlock() {
 	else if(type == rail) {
 		if(multi) {
 			blockNode1 = blockManager->getRootSceneNode()->createChildSceneNode();
-			blockNode1->setPosition(100,25,position+350);
 			blockNode1->setScale(5,25,400);
 			blockEntity1 = blockManager->createEntity("block"+id, "Metal.mesh");
 			blockEntity1->setCastShadows(true);
 			blockNode1->attachObject(blockEntity1);
 
 			blockNode2 = blockManager->getRootSceneNode()->createChildSceneNode();
-			blockNode2->setPosition(-100,25,position+350);
 			blockNode2->setScale(5,25,400);
 			blockEntity2 = blockManager->createEntity("blockright"+id, "Metal.mesh");
 			blockEntity2->setCastShadows(true);
 			blockNode2->attachObject(blockEntity2);
+			
+			if(isServer) {
+				blockNode1->setPosition(100,25,position+350);
+				blockNode2->setPosition(-100,25,position+350);
+			}
+			else {
+				blockNode2->setPosition(100,25,position+350);
+				blockNode1->setPosition(-100,25,position+350);
+			}
 		}
 		else {
 			blockNode1 = blockManager->getRootSceneNode()->createChildSceneNode();
