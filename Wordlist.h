@@ -12,7 +12,10 @@ string wordList[] = {	"STRONG", "WEAK", "QUARREL", "BATTLE", "GIANT",
 			"ELECTRICITY", "CONFUSION", "PSYCHIC", "MAGIC", "ILLUSION"
 };
 
-string wordList_test[] = {	"CAT", "DOG", "PIG", "COW", "MOO", "TOP", "TOY"
+string wordList_test[] = {	"CAT", "DOG", "PIG", "COW", "MOO", 
+				"TOP", "TOY", "SCHOOL", "THREE", "RANGE",
+				"MILES", "SIDES", "WELLS", "PRAY", "GOOD",
+				"TALK", "WALK", "SWEET", "HUMOR", "BOY"
 };
 
 

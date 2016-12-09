@@ -554,7 +554,7 @@ if(dodgeTimer<=0) {
 dodgeTimer = 100;
       userInput = "";
       do {
-           dodgeWord = wordList[rand()%30];
+           dodgeWord = wordList_test[rand()%20];
       }while(speedWord.compare(dodgeWord)==0);
       typingWord1->setText(dodgeWord);
       //runRigidBody->setLinearVelocity(btVector3(0, 50, playerSpeed));
@@ -698,7 +698,7 @@ case 2:
 if(numTokens == 0 && distance <= 200 && obstNum < numBlocks){
 
 //runRigidBody->translate(btVector3(0, 0, -500));
-playerSpeed /= 2;
+playerSpeed *= 0.8;
 //runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
 runRigidBody->setLinearVelocity(btVector3(0, 50, -50));
 }
