@@ -537,6 +537,12 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   mPos.y = trans.getOrigin().getY();
   mPos.z = trans.getOrigin().getZ();
 
+  mRot.x = trans.getRotation().getX();
+  mRot.y = trans.getRotation().getY();
+  mRot.z = trans.getRotation().getZ();
+  mRot.w = trans.getRotation().getW();
+
+
   btVector3 runVel = runRigidBody->getLinearVelocity();
   rvx = runVel.getX();
   rvy = runVel.getY();
@@ -1138,8 +1144,8 @@ void TutorialApplication::updateClient()
 
             // Arrays preparing to use memcpy
             float sendCoords[3] = {runNode->getPosition().x, runNode->getPosition().y, runNode->getPosition().z};
-		Ogre::Vector3 src = runNode->getOrientation() * Ogre::Vector3::UNIT_X;
-	    double sendOrientation[3] = {src.x,src.y,src.z};
+		Ogre::Vector3 src = runNode->getOrientation() * Ogre::Vector3::UNIT_Z;
+	    double sendOrientation[4] = {mRot.x,mRot.y,mRot.z,mRot.w};
             //int sendOrientation[3] = {playerOrientation->x, playerOrientation->y, playerOrientation->z};
             //double sendBRot[4] = {bRotX, bRotY, bRotZ, bRotW};
             //int sendScore[2] = {p1lives, p2lives};
@@ -1158,11 +1164,11 @@ void TutorialApplication::updateClient()
                 {
                     // Memcpy functions (Arrays may need '&' symbol before them)
                     memcpy(sendBuffer, &sendCoords, sizeof(float)*3); // <-- this one
-                    memcpy(&sendBuffer[sizeof(float)*3], &sendOrientation, sizeof(double)*3);
+                    memcpy(&sendBuffer[sizeof(float)*3], &sendOrientation, sizeof(double)*4);
                     //memcpy(&sendBuffer[sizeof(float)*2 + sizeof(int)*3], &sendBRot, sizeof(double)*4);
                     //memcpy(&sendBuffer[sizeof(float)*2 + sizeof(int)*3 + sizeof(double)*4], &sendScore, sizeof(int)*2);
 		    //memcpy(sendBuffer, &sendCoords, sizeof(double)*4);
-                    SDLNet_TCP_Send(client, sendBuffer, sizeof(float)*3 + sizeof(double)*3);
+                    SDLNet_TCP_Send(client, sendBuffer, sizeof(float)*3 + sizeof(double)*4);
                     break;
                 }
                 mKeyboard->capture();
@@ -1176,21 +1182,18 @@ void TutorialApplication::updateClient()
             char recvBuffer[100];
             SDLNet_TCP_Recv(client,recvBuffer,100);
             float recvdCoords[3];
-	    double recvdOrientation[3];
+	    double recvdOrientation[4];
             // Need to also receive paddle collision info to render in physics engine
             memcpy(&recvdCoords, recvBuffer, sizeof(float)*3);
-            memcpy(&recvdOrientation, recvBuffer, sizeof(double)*3);
+            memcpy(&recvdOrientation, recvBuffer, sizeof(double)*4);
             //paddleCoords = &paddle2->position;
             //playerCoords->x = recvdCoords[0];
             //playerCoords->y = recvdCoords[1];
             //playerCoords->z = recvdCoords[2];
-	    Ogre::Vector3 current = runNode2->getOrientation() * Ogre::Vector3::UNIT_X;
 	    
             runNode2->setPosition(recvdCoords[0], recvdCoords[1], recvdCoords[2]);
-	    //runNode2->setOrientation(recvdOrientation[0],recvdOrientation[1],recvdOrientation[2]);
+	    runNode2->setOrientation(recvdOrientation[0],recvdOrientation[1],recvdOrientation[2],recvdOrientation[3]);
 	    //runNode2->setOrientation(recvdOrientation);
-	    Ogre::Quaternion quat = current.getRotationTo(Ogre::Vector3(recvdOrientation[0], recvdOrientation[1],  recvdOrientation[2]));
-	    runNode2->rotate(quat);
             //            SDLNet_TCP_Close(client);
             //            SDLNet_TCP_Close(server);
         }
@@ -1210,23 +1213,22 @@ void TutorialApplication::updateClient()
             char sendBuffer[100];
             //Ogre::Vector3* playerCoords = runNode2->getPosition();
             float sendCoords[3] = {runNode2->getPosition().x, runNode2->getPosition().y, runNode2->getPosition().z};
-  	    Ogre::Vector3 src = runNode2->getOrientation() * Ogre::Vector3::UNIT_X;
-	    double sendOrientation[3] = {src.x,src.y,src.z};
+	    double sendOrientation[4] = {mRot.x,mRot.y,mRot.z,mRot.w};
             memcpy(sendBuffer, &sendCoords, sizeof(float)*3);
-            memcpy(sendBuffer, &sendOrientation, sizeof(double)*3);
-            SDLNet_TCP_Send(server,sendBuffer,sizeof(float)*3 + sizeof(double)*3);
+            memcpy(sendBuffer, &sendOrientation, sizeof(double)*4);
+            SDLNet_TCP_Send(server,sendBuffer,sizeof(float)*3 + sizeof(double)*4);
 
             char recvBuffer[500];
             SDLNet_TCP_Recv(server,recvBuffer,500);
 
             float recvdCoords[3];
-	    double recvdOrientation[3];
+	    double recvdOrientation[4];
             //int recvdBPos[3];
             //double recvdBRot[4];
             //int recvdScore[2];
 
             memcpy(recvdCoords, &recvBuffer, sizeof(float)*3);
-            memcpy(recvdOrientation, &recvBuffer, sizeof(double)*3);
+            memcpy(recvdOrientation, &recvBuffer, sizeof(double)*4);
             //memcpy(&recvdOrientation, &recvBuffer[sizeof(float)*3], sizeof(int)*3);
             //memcpy(&recvdBRot, &recvBuffer[sizeof(float)*2 + sizeof(int)*3], sizeof(double)*4);
             //memcpy(&recvdScore, &recvBuffer[sizeof(float)*2 + sizeof(int)*3 + sizeof(double)*4], sizeof(int)*2);
@@ -1258,12 +1260,9 @@ void TutorialApplication::updateClient()
             runNode->setPosition(recvdCoords[0], recvdCoords[1], recvdCoords[2]);
 	    //runNode->setOrientation(recvdOrientation[0],recvdOrientation[1],recvdOrientation[2],recvdOrientation[3]);
 
-	    Ogre::Vector3 current = runNode->getOrientation() * Ogre::Vector3::UNIT_X;
 	    
-	    //runNode2->setOrientation(recvdOrientation[0],recvdOrientation[1],recvdOrientation[2]);
+	    runNode2->setOrientation(recvdOrientation[0],recvdOrientation[1],recvdOrientation[2],recvdOrientation[3]);
 	    //runNode2->setOrientation(recvdOrientation);
-	    Ogre::Quaternion quat = current.getRotationTo(Ogre::Vector3(recvdOrientation[0], recvdOrientation[1],  recvdOrientation[2]));
-	    runNode->rotate(quat);
             //            SDLNet_TCP_Close(server);
         }
     }

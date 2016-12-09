@@ -144,6 +144,7 @@ protected:
     Ogre::SceneNode*            runNode2;
     Ogre::Vector3               mDir;
     Ogre::Vector3               mPos;
+    Ogre::Quaternion            mRot;
 
     // Universial entity: Paddle
     Ogre::Entity*               mPaddle;
