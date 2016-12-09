@@ -16,7 +16,7 @@ public:
 	Type type;
 	int position;
 	bool multi;
-	bool server;
+	bool serv;
 
 	Block();
 	Block(Ogre::SceneManager *newManager, int num, int z, bool m, bool s);
