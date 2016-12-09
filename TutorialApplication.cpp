@@ -135,23 +135,23 @@ void TutorialApplication::startBullet()
   floorRigidBody->setFriction(0);
   floorRigidBody->setDamping(0, 0);
   dynamicsWorld->addRigidBody(floorRigidBody);
-  
+
   if(multiplayer) {
-	if(isServer) {
-  		runMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), btVector3(100,0,0)));
-	}
-	else {
-  		runMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), btVector3(-100,0,0)));
-	}
+if(isServer) {
+  runMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), btVector3(100,0,0)));
+}
+else {
+  runMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), btVector3(-100,0,0)));
+}
   }
   else {
-  	runMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), btVector3(0,0,0)));
+  runMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), btVector3(0,0,0)));
   }
 
   btScalar runMass = 3;
   btVector3 runInertia(0, 0, 0);
   runShape->calculateLocalInertia(runMass, runInertia);
-  btRigidBody::btRigidBodyConstructionInfo runRigidBodyCI(runMass, runMotionState, 
+  btRigidBody::btRigidBodyConstructionInfo runRigidBodyCI(runMass, runMotionState,
       runShape, runInertia);
   runRigidBody = new btRigidBody(runRigidBodyCI);
   runRigidBody->setRestitution(0);
@@ -274,7 +274,7 @@ void TutorialApplication::createScene(void)
   if (ballVel.length() != 0) {
     ballVel *= maxSpeed/ballVel.length();
   }
-  
+
   startTime = clock();
   wordCount=0;
   obstNum = 0;
@@ -344,121 +344,121 @@ void TutorialApplication::createScene(void)
   floorEntity->setMaterialName("Examples/CloudySky");
 //Create Finish Line
 
-	Ogre::SceneNode* blockNode1 = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-	blockNode1->setPosition(175,100,trackLen * 2);
-	blockNode1->setScale(10,100,10);
-	Ogre::Entity* blockEntity1 = mSceneMgr->createEntity("finishLine1", "Paper.mesh");
-	blockEntity1->setCastShadows(true);
-	blockNode1->attachObject(blockEntity1);
+Ogre::SceneNode* blockNode1 = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+blockNode1->setPosition(175,100,trackLen * 2);
+blockNode1->setScale(10,100,10);
+Ogre::Entity* blockEntity1 = mSceneMgr->createEntity("finishLine1", "Paper.mesh");
+blockEntity1->setCastShadows(true);
+blockNode1->attachObject(blockEntity1);
 
-	Ogre::SceneNode* blockNode2 = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-	blockNode2->setPosition(-175,100,trackLen * 2);
-	blockNode2->setScale(10,100,10);
-	Ogre::Entity* blockEntity2 = mSceneMgr->createEntity("finishLine2", "Paper.mesh");
-	blockEntity2->setCastShadows(true);
-	blockNode2->attachObject(blockEntity2);
+Ogre::SceneNode* blockNode2 = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+blockNode2->setPosition(-175,100,trackLen * 2);
+blockNode2->setScale(10,100,10);
+Ogre::Entity* blockEntity2 = mSceneMgr->createEntity("finishLine2", "Paper.mesh");
+blockEntity2->setCastShadows(true);
+blockNode2->attachObject(blockEntity2);
 
-	Ogre::SceneNode* blockNode3 = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-	blockNode3->setPosition(0,200,trackLen * 2);
-	blockNode3->setScale(100,10,10);
-	Ogre::Entity* blockEntity3 = mSceneMgr->createEntity("finishLine3", "Paper.mesh");
-	blockEntity3->setCastShadows(true);
-	blockNode3->attachObject(blockEntity3);
+Ogre::SceneNode* blockNode3 = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+blockNode3->setPosition(0,200,trackLen * 2);
+blockNode3->setScale(100,10,10);
+Ogre::Entity* blockEntity3 = mSceneMgr->createEntity("finishLine3", "Paper.mesh");
+blockEntity3->setCastShadows(true);
+blockNode3->attachObject(blockEntity3);
 
   mSceneMgr->setShadowTechnique(Ogre::SHADOWTYPE_STENCIL_ADDITIVE);
 //Create Blocks
   for(int i = 0; i < numBlocks; i++) {
 
-	blocks.push_back(new Block(mSceneMgr,i,2000+(3000*i), multiplayer, isServer));
-	int blockType = blocks.at(i)->getType();
-	//Step
-	if(blockType == 0) {
-		blockShape = new btBoxShape(btVector3(75,25,50));
-		blockMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), blocks.at(i)->getPosition()));
-		btRigidBody::btRigidBodyConstructionInfo blockRigidBodyCI(0, blockMotionState, blockShape, btVector3(0,0,0));
-		blockRigidBodies[i] = new btRigidBody(blockRigidBodyCI);
-		blockRigidBodies[i]->setRestitution(1);
-		blockRigidBodies[i]->setFriction(0);
-		blockRigidBodies[i]->setDamping(0,0);
-		dynamicsWorld->addRigidBody(blockRigidBodies[i]);
-	}
-	/*if(blockType == 1) {
-		blockShape = new btBoxShape(btVector3(75,25,50));
-		blockMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), blocks.at(i)->getPosition()));
-		btRigidBody::btRigidBodyConstructionInfo blockRigidBodyCI(0, blockMotionState, blockShape, btVector3(0,0,0));
-		blockRigidBodies[i] = new btRigidBody(blockRigidBodyCI);
-		blockRigidBodies[i]->setRestitution(1);
-		blockRigidBodies[i]->setFriction(0);
-		blockRigidBodies[i]->setDamping(0,0);
-		dynamicsWorld->addRigidBody(blockRigidBodies[i]);
-		break;
-		}
-	//Gap
-	case 2: {
-		blockShape = new btBoxShape(btVector3(15,100,200));
-		blockMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), blocks.at(i)->getPosition()));
-		btRigidBody::btRigidBodyConstructionInfo blockRigidBodyCI(0, blockMotionState, blockShape, btVector3(0,0,0));
-		blockRigidBodies[i] = new btRigidBody(blockRigidBodyCI);
-		blockRigidBodies[i]->setRestitution(1);
-		blockRigidBodies[i]->setFriction(0);
-		blockRigidBodies[i]->setDamping(0,0);
-		dynamicsWorld->addRigidBody(blockRigidBodies[i]);
-		break;
-		}
-	}*/
-	//Rail
-	if(blockType == 3) {
-		blockShape = new btBoxShape(btVector3(5,25,400));
-		std::cout<<blocks.at(i)->getPosition()<<std::endl;
-		blockMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), blocks.at(i)->getPosition()));
-		btRigidBody::btRigidBodyConstructionInfo blockRigidBodyCI(0, blockMotionState, blockShape, btVector3(0,0,0));
-		blockRigidBodies[i] = new btRigidBody(blockRigidBodyCI);
-		blockRigidBodies[i]->setRestitution(1);
-		blockRigidBodies[i]->setFriction(0);
-		blockRigidBodies[i]->setDamping(0,0);
-		dynamicsWorld->addRigidBody(blockRigidBodies[i]);
-	}
-	if(blockType == 4) {
-		blockShape = new btBoxShape(btVector3(5,200,400));
-		blockMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), blocks.at(i)->getPosition()));
-		btRigidBody::btRigidBodyConstructionInfo blockRigidBodyCI(0, blockMotionState, blockShape, btVector3(0,0,0));
-		blockRigidBodies[i] = new btRigidBody(blockRigidBodyCI);
-		blockRigidBodies[i]->setRestitution(1);
-		blockRigidBodies[i]->setFriction(0);
-		blockRigidBodies[i]->setDamping(0,0);
-		dynamicsWorld->addRigidBody(blockRigidBodies[i]);
-	}
+blocks.push_back(new Block(mSceneMgr,i,2000+(3000*i), multiplayer, isServer));
+int blockType = blocks.at(i)->getType();
+//Step
+if(blockType == 0) {
+blockShape = new btBoxShape(btVector3(75,25,50));
+blockMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), blocks.at(i)->getPosition()));
+btRigidBody::btRigidBodyConstructionInfo blockRigidBodyCI(0, blockMotionState, blockShape, btVector3(0,0,0));
+blockRigidBodies[i] = new btRigidBody(blockRigidBodyCI);
+blockRigidBodies[i]->setRestitution(1);
+blockRigidBodies[i]->setFriction(0);
+blockRigidBodies[i]->setDamping(0,0);
+dynamicsWorld->addRigidBody(blockRigidBodies[i]);
+}
+/*if(blockType == 1) {
+blockShape = new btBoxShape(btVector3(75,25,50));
+blockMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), blocks.at(i)->getPosition()));
+btRigidBody::btRigidBodyConstructionInfo blockRigidBodyCI(0, blockMotionState, blockShape, btVector3(0,0,0));
+blockRigidBodies[i] = new btRigidBody(blockRigidBodyCI);
+blockRigidBodies[i]->setRestitution(1);
+blockRigidBodies[i]->setFriction(0);
+blockRigidBodies[i]->setDamping(0,0);
+dynamicsWorld->addRigidBody(blockRigidBodies[i]);
+break;
+}
+//Gap
+case 2: {
+blockShape = new btBoxShape(btVector3(15,100,200));
+blockMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), blocks.at(i)->getPosition()));
+btRigidBody::btRigidBodyConstructionInfo blockRigidBodyCI(0, blockMotionState, blockShape, btVector3(0,0,0));
+blockRigidBodies[i] = new btRigidBody(blockRigidBodyCI);
+blockRigidBodies[i]->setRestitution(1);
+blockRigidBodies[i]->setFriction(0);
+blockRigidBodies[i]->setDamping(0,0);
+dynamicsWorld->addRigidBody(blockRigidBodies[i]);
+break;
+}
+}*/
+//Rail
+if(blockType == 3) {
+blockShape = new btBoxShape(btVector3(5,25,400));
+std::cout<<blocks.at(i)->getPosition()<<std::endl;
+blockMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), blocks.at(i)->getPosition()));
+btRigidBody::btRigidBodyConstructionInfo blockRigidBodyCI(0, blockMotionState, blockShape, btVector3(0,0,0));
+blockRigidBodies[i] = new btRigidBody(blockRigidBodyCI);
+blockRigidBodies[i]->setRestitution(1);
+blockRigidBodies[i]->setFriction(0);
+blockRigidBodies[i]->setDamping(0,0);
+dynamicsWorld->addRigidBody(blockRigidBodies[i]);
+}
+if(blockType == 4) {
+blockShape = new btBoxShape(btVector3(5,200,400));
+blockMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), blocks.at(i)->getPosition()));
+btRigidBody::btRigidBodyConstructionInfo blockRigidBodyCI(0, blockMotionState, blockShape, btVector3(0,0,0));
+blockRigidBodies[i] = new btRigidBody(blockRigidBodyCI);
+blockRigidBodies[i]->setRestitution(1);
+blockRigidBodies[i]->setFriction(0);
+blockRigidBodies[i]->setDamping(0,0);
+dynamicsWorld->addRigidBody(blockRigidBodies[i]);
+}
   }
 
 }
 
 // Game loop code
-void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {	
+void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   if(delay) {
-	gameTimer = clock()/CLOCKS_PER_SEC;
-	mAnimationState1->setEnabled(false);
-	if(gameTimer<1) {
-  		delayWindow->setText("5");
-	}
-	else if(gameTimer<2) {
-  		delayWindow->setText("4");
-	}
-	else if(gameTimer<3) {
-  		delayWindow->setText("3");
-	}
-	else if(gameTimer<4) {
- 		delayWindow->setText("2");
-	}
-	else if(gameTimer<5) {
-  		delayWindow->setText("1");
-	}
-	else if(gameTimer>5) {
-		delay = false;
-		userInput = "";
-  		delayWindow->setVisible(false);
-		mAnimationState1->setEnabled(true);
-		startTime = clock();
-	}
+gameTimer = clock()/CLOCKS_PER_SEC;
+mAnimationState1->setEnabled(false);
+if(gameTimer<1) {
+  delayWindow->setText("5");
+}
+else if(gameTimer<2) {
+  delayWindow->setText("4");
+}
+else if(gameTimer<3) {
+  delayWindow->setText("3");
+}
+else if(gameTimer<4) {
+  delayWindow->setText("2");
+}
+else if(gameTimer<5) {
+  delayWindow->setText("1");
+}
+else if(gameTimer>5) {
+delay = false;
+userInput = "";
+  delayWindow->setVisible(false);
+mAnimationState1->setEnabled(true);
+startTime = clock();
+}
   }
   else if(!delay) {
   if(isServer) {
@@ -467,7 +467,7 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   else {
     mPos = runNode2->getPosition();
   }
-  
+
   mCamera->setPosition(mPos + Ogre::Vector3(0, cameraHeight, -500));
   //mCamera->lookAt(mPos);
 
@@ -532,16 +532,10 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
     play_sound(0);
     finished = false;
   }
- 
+
   mPos.x = trans.getOrigin().getX();
   mPos.y = trans.getOrigin().getY();
   mPos.z = trans.getOrigin().getZ();
-
-  mRot.x = trans.getRotation().getX();
-  mRot.y = trans.getRotation().getY();
-  mRot.z = trans.getRotation().getZ();
-  mRot.w = trans.getRotation().getW();
-
 
   btVector3 runVel = runRigidBody->getLinearVelocity();
   rvx = runVel.getX();
@@ -550,20 +544,20 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
 
   //Change User's Input
   if(!finished){
-  	typedWord1->setText(userInput);
-  	typedWord2->setText(userInput);
+  typedWord1->setText(userInput);
+  typedWord2->setText(userInput);
   }
   if(dodgeWord.compare(userInput)==0) {
       typedWord1->setText("[colour='FF00FF00']" + userInput);
       typingWord1->setText("[colour='FF00FF00']" + dodgeWord);
-	if(dodgeTimer<=0) {
-		dodgeTimer = 100;
+if(dodgeTimer<=0) {
+dodgeTimer = 100;
       userInput = "";
       do {
            dodgeWord = wordList[rand()%30];
       }while(speedWord.compare(dodgeWord)==0);
       typingWord1->setText(dodgeWord);
-      	//runRigidBody->setLinearVelocity(btVector3(0, 50, playerSpeed));
+      //runRigidBody->setLinearVelocity(btVector3(0, 50, playerSpeed));
       if(runRigidBody) {
 //Number of Tokens
         if (numTokens < 3) {
@@ -586,14 +580,14 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
         }
       }
       wordCount++;
-	}
-	dodgeTimer--;
+}
+dodgeTimer--;
   }
   else if(speedWord.compare(userInput)==0) {
       typedWord2->setText("[colour='FF00FF00']" + userInput);
       typingWord2->setText("[colour='FF00FF00']" + speedWord);
-	if(speedTimer<=0) {
-	speedTimer = 100;
+if(speedTimer<=0) {
+speedTimer = 100;
       userInput = "";
       do {
           speedWord = wordList[rand()%30];
@@ -602,268 +596,294 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
       playerSpeed *= 1.25;
       wordCount++;
       }
-	speedTimer--;
+speedTimer--;
   }
   else if(mPos.y <=1) {
       runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
   }
 //Flipping
   if(flipping) {
-	if(isServer) 
-		runNode->roll(Ogre::Degree(-0.75));
-	else 
-		runNode2->roll(Ogre::Degree(-0.75));
-  	if(mPos.y <= 1) {
-		flipping = false;
-		if(isServer) 
-			runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
-		else
-			runNode2->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
-	}
+if(isServer)
+runNode->roll(Ogre::Degree(-0.75));
+else
+runNode2->roll(Ogre::Degree(-0.75));
+  if(mPos.y <= 1) {
+flipping = false;
+if(isServer)
+runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
+else
+runNode2->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
+}
   }
 //Sliding
   if(sliding) {
-	if(isServer) {
-		runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI, Ogre::Vector3(0, 1, 0)));
-  		mAnimationState1->setEnabled(false);
-	}
-	else { 
-		runNode2->setOrientation(Ogre::Quaternion((Ogre::Radian)PI, Ogre::Vector3(0, 1, 0)));
-  		mAnimationState2->setEnabled(false);
-	}
-  	if(mPos.y <= 1) {
-		sliding = false;
-		if(isServer) {
-			runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
-	  		mAnimationState1->setEnabled(true);
-		}
-		else {
-			runNode2->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
-	  		mAnimationState2->setEnabled(true);
-		}
-	}
+if(isServer) {
+runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI, Ogre::Vector3(0, 1, 0)));
+  mAnimationState1->setEnabled(false);
+}
+else {
+runNode2->setOrientation(Ogre::Quaternion((Ogre::Radian)PI, Ogre::Vector3(0, 1, 0)));
+  mAnimationState2->setEnabled(false);
+}
+  if(mPos.y <= 1) {
+sliding = false;
+if(isServer) {
+runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
+
+mAnimationState1->setEnabled(true);
+}
+else {
+runNode2->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
+
+mAnimationState2->setEnabled(true);
+}
+}
   }
 //Grinding
   if(grinding) {
-	if(isServer) {
-		runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI, Ogre::Vector3(0, 0, 0)));
-  		mAnimationState1->setEnabled(false);
-	}
-	else {
-		runNode2->setOrientation(Ogre::Quaternion((Ogre::Radian)PI, Ogre::Vector3(0, 0, 0)));
-  		mAnimationState2->setEnabled(false);
-	}
-  	if(mPos.y <= 1) {
-		playerSpeed -= 50;
-		grinding = false;
-		if(isServer) {
-			runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
-	  		mAnimationState1->setEnabled(true);
-		}
-		else {
-			runNode2->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
-	  		mAnimationState2->setEnabled(true);
-		}
-	}
+if(isServer) {
+runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI, Ogre::Vector3(0, 0, 0)));
+  mAnimationState1->setEnabled(false);
+}
+else {
+runNode2->setOrientation(Ogre::Quaternion((Ogre::Radian)PI, Ogre::Vector3(0, 0, 0)));
+  mAnimationState2->setEnabled(false);
+}
+  if(mPos.y <= 1) {
+playerSpeed -= 50;
+grinding = false;
+if(isServer) {
+runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
+
+mAnimationState1->setEnabled(true);
+}
+else {
+runNode2->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
+
+mAnimationState2->setEnabled(true);
+}
+}
   }
 //Side Running
   /*if(sideRunning) {
-	runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(1, 1, 1)));
-  	if(mPos.y <= 1) {
-		runRigidBody->setLinearVelocity(btVector3(10, 0, playerSpeed));
-		runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
-	  	mAnimationState1->setEnabled(true);
-		if(mPos.x == 0) {
-			sideRunning = false;
-		}
-	}
+runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(1, 1, 1)));
+  if(mPos.y <= 1) {
+runRigidBody->setLinearVelocity(btVector3(10, 0, playerSpeed));
+runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
+
+mAnimationState1->setEnabled(true);
+if(mPos.x == 0) {
+sideRunning = false;
+}
+}
   }*/
-	int distance;
-	if(obstNum <= numBlocks -1){
-		distance = ((int)(blocks.at(obstNum)->getZ() - mPos.z));
-	}	
+int distance;
+if(obstNum <= numBlocks -1){
+distance = ((int)(blocks.at(obstNum)->getZ() - mPos.z));
+}
 //Crash Function
-	if(obstNum <= numBlocks -1){
-		switch(blocks.at(obstNum)->getType()) {
-		case 0:
-		case 3:
-		case 1:
-			if(numTokens == 0 && distance <= 100 && obstNum < numBlocks){
-    				//runRigidBody->translate(btVector3(0, 0, -500));
-				playerSpeed /= 2;
-				runRigidBody->setLinearVelocity(btVector3(0, 50, -50));
-			}
-		break;
-		case 4:
-		case 2:
-			if(numTokens == 0 && distance <= 200 && obstNum < numBlocks){
-	    			//runRigidBody->translate(btVector3(0, 0, -500));
-				playerSpeed /= 2;
-				//runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
-				runRigidBody->setLinearVelocity(btVector3(0, 50, -50));
-			}
-		break;
-		}
-	}
+if(obstNum <= numBlocks -1){
+switch(blocks.at(obstNum)->getType()) {
+case 0:
+case 3:
+case 1:
+if(numTokens == 0 && distance <= 100 && obstNum < numBlocks){
+    //runRigidBody->translate(btVector3(0, 0, -500));
+playerSpeed /= 2;
+runRigidBody->setLinearVelocity(btVector3(0, 50, -50));
+}
+break;
+case 4:
+case 2:
+if(numTokens == 0 && distance <= 200 && obstNum < numBlocks){
+
+//runRigidBody->translate(btVector3(0, 0, -500));
+playerSpeed /= 2;
+//runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
+runRigidBody->setLinearVelocity(btVector3(0, 50, -50));
+}
+break;
+}
+}
 //Dodge Function
-	if(obstNum <= numBlocks -1){
-	switch(blocks.at(obstNum)->getType()) {
-		case 0:
-		if(numTokens!=0 && obstNum<=numBlocks && distance < playerSpeed*4+200) {
-      			runRigidBody->setLinearVelocity(btVector3(0, 40, playerSpeed+50));
-			flipping = true;
-        	  	if (numTokens == 1) {
-        	  	  lifeWindow1->setVisible(false);
-       	   		}
-        	  	else if (numTokens == 2) {
-          		  lifeWindow2->setVisible(false);
-          		}
-          		else if (numTokens == 3) {
-         		   lifeWindow3->setVisible(false);
-         	 	}
-         		else if (numTokens == 4) {
-         		  lifeWindow4->setVisible(false);
-         		}
-         		else if (numTokens == 5) {
-        	 	  lifeWindow5->setVisible(false);
-        	 	}
-			numTokens--;
-			obstNum++;
-		}
-		break;
-		case 1:
-		if(numTokens!=0 && obstNum<=numBlocks) {
-			if(distance < playerSpeed*10 && distance >= -1000) {
-				if(isServer) {
-					runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(-1, -1, 1)));
-  					mAnimationState1->setEnabled(false);
-				}
-				else {
-					runNode2->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(-1, -1, 1)));
-  					mAnimationState2->setEnabled(false);
-				}
-      				runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed+100));
-			}
-			if(distance<-1000){
-        	  		if (numTokens == 1) {
-        	  		  lifeWindow1->setVisible(false);
-       	   			}
-        	  		else if (numTokens == 2) {
-          			  lifeWindow2->setVisible(false);
-          			}
-          			else if (numTokens == 3) {
-         			   lifeWindow3->setVisible(false);
-         	 		}
-         			else if (numTokens == 4) {
-         			  lifeWindow4->setVisible(false);
-         			}
-         			else if (numTokens == 5) {
-        	 		  lifeWindow5->setVisible(false);
-        	 		}
-				numTokens--;
-				obstNum++;
-  				/*Ogre::Vector3 src = runNode->getOrientation() * Ogre::Vector3::UNIT_Z;
-  				Ogre::Quaternion quat = src.getRotationTo(Ogre::Vector3(sqrt(0.5),0,0));
-  				runNode->rotate(quat);*/
-				if(isServer) { 
-					runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
-  					mAnimationState1->setEnabled(true);
-				}
-				else {
-					runNode2->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
-  					mAnimationState2->setEnabled(true);
-				}
-  				cameraHeight = 100;
-			}
-		}
-		break;
-		case 2:
-		if(numTokens!=0 && obstNum<=numBlocks && distance < 400) {
-      				runRigidBody->setLinearVelocity(btVector3(0, 30, playerSpeed+100));
-				sliding = true;
-        	  		if (numTokens == 1) {
-        	  		  lifeWindow1->setVisible(false);
-       	   			}
-        	  		else if (numTokens == 2) {
-          			  lifeWindow2->setVisible(false);
-          			}
-          			else if (numTokens == 3) {
-         			   lifeWindow3->setVisible(false);
-         	 		}
-         			else if (numTokens == 4) {
-         			  lifeWindow4->setVisible(false);
-         			}
-         			else if (numTokens == 5) {
-        	 		  lifeWindow5->setVisible(false);
-        	 		}
-				numTokens--;
-				obstNum++;
-  				/*Ogre::Vector3 src = runNode->getOrientation() * Ogre::Vector3::UNIT_Z;
-  				Ogre::Quaternion quat = src.getRotationTo(Ogre::Vector3(sqrt(0.5),0,0));
-  				runNode->rotate(quat);*/
-				//runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
-  				//cameraHeight = 100;
-  				//mAnimationState1->setEnabled(true);
-		}
-		case 3:
-		if(numTokens!=0 && obstNum<=numBlocks && distance < playerSpeed*4+200) {
-			playerSpeed += 50;
-      			runRigidBody->setLinearVelocity(btVector3(0, 40, playerSpeed));
-			grinding = true;
-        	  	if (numTokens == 1) {
-        	  	  lifeWindow1->setVisible(false);
-       	   		}
-        	  	else if (numTokens == 2) {
-          		  lifeWindow2->setVisible(false);
-          		}
-          		else if (numTokens == 3) {
-         		   lifeWindow3->setVisible(false);
-         	 	}
-         		else if (numTokens == 4) {
-         		  lifeWindow4->setVisible(false);
-         		}
-         		else if (numTokens == 5) {
-        	 	  lifeWindow5->setVisible(false);
-        	 	}
-			numTokens--;
-			obstNum++;
-		}
-		break;
-		case 4:
-		if(numTokens!=0 && obstNum<=numBlocks && distance < playerSpeed) {
-      			runRigidBody->setLinearVelocity(btVector3(-40, 40, playerSpeed+50));
-			sideRunning = true;
-        	  	if (numTokens == 1) {
-        	  	  lifeWindow1->setVisible(false);
-       	   		}
-        	  	else if (numTokens == 2) {
-          		  lifeWindow2->setVisible(false);
-          		}
-          		else if (numTokens == 3) {
-         		   lifeWindow3->setVisible(false);
-         	 	}
-         		else if (numTokens == 4) {
-         		  lifeWindow4->setVisible(false);
-         		}
-         		else if (numTokens == 5) {
-        	 	  lifeWindow5->setVisible(false);
-        	 	}
-			numTokens--;
-			obstNum++;
-		}
-		break;
-	}
-	}	
+if(obstNum <= numBlocks -1){
+switch(blocks.at(obstNum)->getType()) {
+case 0:
+if(numTokens!=0 && obstNum<=numBlocks && distance < playerSpeed*4+200) {
+      runRigidBody->setLinearVelocity(btVector3(0, 40, playerSpeed+50));
+flipping = true;
+
+if (numTokens == 1) {
+
+ lifeWindow1->setVisible(false);
+
+}
+
+else if (numTokens == 2) {
+           lifeWindow2->setVisible(false);
+          }
+          else if (numTokens == 3) {
+            lifeWindow3->setVisible(false);
+          }
+          else if (numTokens == 4) {
+           lifeWindow4->setVisible(false);
+          }
+          else if (numTokens == 5) {
+         lifeWindow5->setVisible(false);
+        }
+numTokens--;
+obstNum++;
+}
+break;
+case 1:
+if(numTokens!=0 && obstNum<=numBlocks) {
+if(distance < playerSpeed*10 && distance >= -1000) {
+if(isServer) {
+runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(-1, -1, 1)));
+  mAnimationState1->setEnabled(false);
+}
+else {
+runNode2->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(-1, -1, 1)));
+  mAnimationState2->setEnabled(false);
+}
+      runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed+100));
+}
+if(distance<-1000){
+
+if (numTokens == 1) {
+
+ lifeWindow1->setVisible(false);
+
+}
+
+else if (numTokens == 2) {
+           lifeWindow2->setVisible(false);
+          }
+          else if (numTokens == 3) {
+            lifeWindow3->setVisible(false);
+          }
+          else if (numTokens == 4) {
+           lifeWindow4->setVisible(false);
+          }
+          else if (numTokens == 5) {
+         lifeWindow5->setVisible(false);
+        }
+numTokens--;
+obstNum++;
+  /*Ogre::Vector3 src = runNode->getOrientation() * Ogre::Vector3::UNIT_Z;
+  Ogre::Quaternion quat = src.getRotationTo(Ogre::Vector3(sqrt(0.5),0,0));
+  runNode->rotate(quat);*/
+if(isServer) {
+runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
+  mAnimationState1->setEnabled(true);
+}
+else {
+runNode2->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
+  mAnimationState2->setEnabled(true);
+}
+  cameraHeight = 100;
+}
+}
+break;
+case 2:
+if(numTokens!=0 && obstNum<=numBlocks && distance < 400) {
+      runRigidBody->setLinearVelocity(btVector3(0, 30, playerSpeed+100));
+sliding = true;
+
+if (numTokens == 1) {
+
+ lifeWindow1->setVisible(false);
+
+}
+
+else if (numTokens == 2) {
+           lifeWindow2->setVisible(false);
+          }
+          else if (numTokens == 3) {
+            lifeWindow3->setVisible(false);
+          }
+          else if (numTokens == 4) {
+           lifeWindow4->setVisible(false);
+          }
+          else if (numTokens == 5) {
+         lifeWindow5->setVisible(false);
+        }
+numTokens--;
+obstNum++;
+  /*Ogre::Vector3 src = runNode->getOrientation() * Ogre::Vector3::UNIT_Z;
+  Ogre::Quaternion quat = src.getRotationTo(Ogre::Vector3(sqrt(0.5),0,0));
+  runNode->rotate(quat);*/
+//runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
+  //cameraHeight = 100;
+  //mAnimationState1->setEnabled(true);
+}
+case 3:
+if(numTokens!=0 && obstNum<=numBlocks && distance < playerSpeed*4+200) {
+playerSpeed += 50;
+      runRigidBody->setLinearVelocity(btVector3(0, 40, playerSpeed));
+grinding = true;
+
+if (numTokens == 1) {
+
+ lifeWindow1->setVisible(false);
+
+}
+
+else if (numTokens == 2) {
+           lifeWindow2->setVisible(false);
+          }
+          else if (numTokens == 3) {
+            lifeWindow3->setVisible(false);
+          }
+          else if (numTokens == 4) {
+           lifeWindow4->setVisible(false);
+          }
+          else if (numTokens == 5) {
+         lifeWindow5->setVisible(false);
+        }
+numTokens--;
+obstNum++;
+}
+break;
+case 4:
+if(numTokens!=0 && obstNum<=numBlocks && distance < playerSpeed) {
+      runRigidBody->setLinearVelocity(btVector3(-40, 40, playerSpeed+50));
+sideRunning = true;
+
+if (numTokens == 1) {
+
+ lifeWindow1->setVisible(false);
+
+}
+
+else if (numTokens == 2) {
+           lifeWindow2->setVisible(false);
+          }
+          else if (numTokens == 3) {
+            lifeWindow3->setVisible(false);
+          }
+          else if (numTokens == 4) {
+           lifeWindow4->setVisible(false);
+          }
+          else if (numTokens == 5) {
+         lifeWindow5->setVisible(false);
+        }
+numTokens--;
+obstNum++;
+}
+break;
+}
+}
 //MINIMUM SPEED
     if(playerSpeed<20)
-	playerSpeed=20;
+playerSpeed=20;
 //PRINTING
   // Displaying runner position
   //std::cout << mPos.x << " " << mPos.y << " " << mPos.z << std::endl;
   if(multiplayer) {
     if(isServer) {
-  	 runNode->setPosition(Ogre::Vector3(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ()));
-  	 //runNode2->setPosition(Ogre::Vector3(trans.getOrigin().getY(), trans.getOrigin().getZ()));
+  runNode->setPosition(Ogre::Vector3(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ()));
+  //runNode2->setPosition(Ogre::Vector3(trans.getOrigin().getY(), trans.getOrigin().getZ()));
       updateClient();
     }
     else{
@@ -873,9 +893,9 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
     }
   }
   else {
-  	runNode->setPosition(Ogre::Vector3(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ()));
+  runNode->setPosition(Ogre::Vector3(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ()));
   }
-  } 
+  }
 }
 
 void TutorialApplication::CEGUI_setup(){
@@ -903,13 +923,13 @@ void TutorialApplication::CEGUI_setup(){
   delayWindow->setSize(USize(UDim(0.02,0),UDim(0.04,0)));
   delayWindow->setText("5");
   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(delayWindow);
-  
+
   wpmWindow = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","WordsPerMinute");
   wpmWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0,0),CEGUI::UDim(0.04,0)));
   wpmWindow->setSize(USize(UDim(0.2,0),UDim(0.04,0)));
   wpmWindow->setText("Words: 0");// + Ogre::StringConverter::toString(wordCount));
   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(wpmWindow);
-  
+
   speedWindow = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","Speed");
   speedWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0,0),CEGUI::UDim(0.08,0)));
   speedWindow->setSize(USize(UDim(0.2,0),UDim(0.04,0)));
@@ -940,7 +960,7 @@ void TutorialApplication::CEGUI_setup(){
   lifeWindow5->setVisible(false);
 
 
-  //Create Text box that says game over 
+  //Create Text box that says game over
   goWindow = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","GAMEOBER");
   goWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0.39,0),CEGUI::UDim(0.4,0)));
   goWindow->setSize(USize(UDim(0.22,0),UDim(0.1,0)));
@@ -948,14 +968,14 @@ void TutorialApplication::CEGUI_setup(){
   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(goWindow);
   goWindow->setVisible(false);
 
-  //Create text box : SOUND ON/OFF Right Click 
+  //Create text box : SOUND ON/OFF Right Click
   CEGUI::Window *soundToggle = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","soundo");
   soundToggle->setPosition(CEGUI::UVector2(CEGUI::UDim(0.8,0),CEGUI::UDim(0,0)));
   soundToggle->setSize(USize(UDim(0.25,0),UDim(0.043,0)));
   soundToggle->setText("Toggle Sound: Right Mouse");
   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(soundToggle);
 
-  //Create text box to indicate tokens 
+  //Create text box to indicate tokens
   CEGUI::Window *lifeIndicator = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","lifeIndicatorW");
   lifeIndicator->setPosition(CEGUI::UVector2(CEGUI::UDim(0.465,0),CEGUI::UDim(0.25,0)));
   lifeIndicator->setSize(USize(UDim(0.07,0),UDim(0.04,0)));
@@ -1053,7 +1073,7 @@ void play_sound(int i) {
     wav_spec.callback = my_audio_callback;
     wav_spec.userdata = NULL;
     // set our global static variables
-  
+
     switch (i) {
       case 0: audio_pos = wav_buffer0; break;
       case 1: audio_pos = wav_buffer1; break;
@@ -1144,8 +1164,8 @@ void TutorialApplication::updateClient()
 
             // Arrays preparing to use memcpy
             float sendCoords[3] = {runNode->getPosition().x, runNode->getPosition().y, runNode->getPosition().z};
-		Ogre::Vector3 src = runNode->getOrientation() * Ogre::Vector3::UNIT_Z;
-	    double sendOrientation[4] = {mRot.x,mRot.y,mRot.z,mRot.w};
+Ogre::Vector3 src = runNode->getOrientation() * Ogre::Vector3::UNIT_Z;
+   double sendOrientation[3] = {src.x,src.y,src.z};
             //int sendOrientation[3] = {playerOrientation->x, playerOrientation->y, playerOrientation->z};
             //double sendBRot[4] = {bRotX, bRotY, bRotZ, bRotW};
             //int sendScore[2] = {p1lives, p2lives};
@@ -1163,12 +1183,12 @@ void TutorialApplication::updateClient()
                 if(client)
                 {
                     // Memcpy functions (Arrays may need '&' symbol before them)
-                    memcpy(sendBuffer, &sendCoords, sizeof(float)*3); // <-- this one
-                    memcpy(&sendBuffer[sizeof(float)*3], &sendOrientation, sizeof(double)*4);
+                    memcpy(&sendBuffer, &sendCoords, sizeof(float)*3); // <-- this one
+                    memcpy(&sendBuffer[sizeof(float)*3], &sendOrientation, sizeof(double)*3);
                     //memcpy(&sendBuffer[sizeof(float)*2 + sizeof(int)*3], &sendBRot, sizeof(double)*4);
                     //memcpy(&sendBuffer[sizeof(float)*2 + sizeof(int)*3 + sizeof(double)*4], &sendScore, sizeof(int)*2);
-		    //memcpy(sendBuffer, &sendCoords, sizeof(double)*4);
-                    SDLNet_TCP_Send(client, sendBuffer, sizeof(float)*3 + sizeof(double)*4);
+   //memcpy(sendBuffer, &sendCoords, sizeof(double)*4);
+                    SDLNet_TCP_Send(client, sendBuffer, sizeof(float)*3 + sizeof(double)*3);
                     break;
                 }
                 mKeyboard->capture();
@@ -1182,18 +1202,21 @@ void TutorialApplication::updateClient()
             char recvBuffer[100];
             SDLNet_TCP_Recv(client,recvBuffer,100);
             float recvdCoords[3];
-	    double recvdOrientation[4];
+   double recvdOrientation[3];
             // Need to also receive paddle collision info to render in physics engine
-            memcpy(&recvdCoords, recvBuffer, sizeof(float)*3);
-            memcpy(&recvdOrientation, recvBuffer, sizeof(double)*4);
+            memcpy(&recvdCoords, &recvBuffer, sizeof(float)*3);
+            memcpy(&recvdOrientation, &recvBuffer[sizeof(float)*3], sizeof(double)*3);
             //paddleCoords = &paddle2->position;
             //playerCoords->x = recvdCoords[0];
             //playerCoords->y = recvdCoords[1];
             //playerCoords->z = recvdCoords[2];
-	    
+   Ogre::Vector3 current = runNode2->getOrientation() * Ogre::Vector3::UNIT_Z;
+
             runNode2->setPosition(recvdCoords[0], recvdCoords[1], recvdCoords[2]);
-	    runNode2->setOrientation(recvdOrientation[0],recvdOrientation[1],recvdOrientation[2],recvdOrientation[3]);
-	    //runNode2->setOrientation(recvdOrientation);
+   //runNode2->setOrientation(recvdOrientation[0],recvdOrientation[1],recvdOrientation[2]);
+   //runNode2->setOrientation(recvdOrientation);
+   Ogre::Quaternion quat = current.getRotationTo(Ogre::Vector3(recvdOrientation[0], recvdOrientation[1],  recvdOrientation[2]));
+   runNode2->rotate(quat);
             //            SDLNet_TCP_Close(client);
             //            SDLNet_TCP_Close(server);
         }
@@ -1205,7 +1228,7 @@ void TutorialApplication::updateClient()
             {
                 IPaddress ip;
                 //std::cout << "Attempting to connect to " << mGUI->currentAddress << "\n";
-		//Set IP ADDRESS
+//Set IP ADDRESS
                 SDLNet_ResolveHost(&ip, "128.83.139.76", 1234);
                 server=SDLNet_TCP_Open(&ip);
                 connectionOpened = true;
@@ -1213,22 +1236,23 @@ void TutorialApplication::updateClient()
             char sendBuffer[100];
             //Ogre::Vector3* playerCoords = runNode2->getPosition();
             float sendCoords[3] = {runNode2->getPosition().x, runNode2->getPosition().y, runNode2->getPosition().z};
-	    double sendOrientation[4] = {mRot.x,mRot.y,mRot.z,mRot.w};
-            memcpy(sendBuffer, &sendCoords, sizeof(float)*3);
-            memcpy(sendBuffer, &sendOrientation, sizeof(double)*4);
-            SDLNet_TCP_Send(server,sendBuffer,sizeof(float)*3 + sizeof(double)*4);
+     Ogre::Vector3 src = runNode2->getOrientation() * Ogre::Vector3::UNIT_Z;
+   double sendOrientation[3] = {src.x,src.y,src.z};
+            memcpy(&sendBuffer, &sendCoords, sizeof(float)*3);
+            memcpy(&sendBuffer[sizeof(float)*3], &sendOrientation, sizeof(double)*3);
+            SDLNet_TCP_Send(server,sendBuffer,sizeof(float)*3 + sizeof(double)*3);
 
-            char recvBuffer[500];
-            SDLNet_TCP_Recv(server,recvBuffer,500);
+            char recvBuffer[100];
+            SDLNet_TCP_Recv(server,recvBuffer,100);
 
             float recvdCoords[3];
-	    double recvdOrientation[4];
+   double recvdOrientation[3];
             //int recvdBPos[3];
             //double recvdBRot[4];
             //int recvdScore[2];
 
-            memcpy(recvdCoords, &recvBuffer, sizeof(float)*3);
-            memcpy(recvdOrientation, &recvBuffer, sizeof(double)*4);
+            memcpy(&recvdCoords, &recvBuffer, sizeof(float)*3);
+            memcpy(&recvdOrientation, &recvBuffer[sizeof(float)*3], sizeof(double)*3);
             //memcpy(&recvdOrientation, &recvBuffer[sizeof(float)*3], sizeof(int)*3);
             //memcpy(&recvdBRot, &recvBuffer[sizeof(float)*2 + sizeof(int)*3], sizeof(double)*4);
             //memcpy(&recvdScore, &recvBuffer[sizeof(float)*2 + sizeof(int)*3 + sizeof(double)*4], sizeof(int)*2);
@@ -1258,11 +1282,14 @@ void TutorialApplication::updateClient()
                                 //trans.getRotation().getW());
 
             runNode->setPosition(recvdCoords[0], recvdCoords[1], recvdCoords[2]);
-	    //runNode->setOrientation(recvdOrientation[0],recvdOrientation[1],recvdOrientation[2],recvdOrientation[3]);
+   //runNode->setOrientation(recvdOrientation[0],recvdOrientation[1],recvdOrientation[2],recvdOrientation[3]);
 
-	    
-	    runNode2->setOrientation(recvdOrientation[0],recvdOrientation[1],recvdOrientation[2],recvdOrientation[3]);
-	    //runNode2->setOrientation(recvdOrientation);
+   Ogre::Vector3 current = runNode->getOrientation() * Ogre::Vector3::UNIT_Z;
+
+   //runNode2->setOrientation(recvdOrientation[0],recvdOrientation[1],recvdOrientation[2]);
+   //runNode2->setOrientation(recvdOrientation);
+   Ogre::Quaternion quat = current.getRotationTo(Ogre::Vector3(recvdOrientation[0], recvdOrientation[1],  recvdOrientation[2]));
+   runNode->rotate(quat);
             //            SDLNet_TCP_Close(server);
         }
     }
