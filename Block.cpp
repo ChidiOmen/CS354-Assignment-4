@@ -29,7 +29,7 @@ Block::Block(Ogre::SceneManager *newManager, int num, int z, bool m, bool s) {
 	}
 	position = z;
 	multi = m;
-	server = s;
+	serv = s;
 	blockManager = newManager;
 	buildBlock();
 }
@@ -147,7 +147,7 @@ void Block::buildBlock() {
 			blockEntity2->setCastShadows(true);
 			blockNode2->attachObject(blockEntity2);
 			
-			if(isServer) {
+			if(serv) {
 				blockNode1->setPosition(100,25,position+350);
 				blockNode2->setPosition(-100,25,position+350);
 			}

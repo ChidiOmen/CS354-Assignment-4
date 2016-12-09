@@ -369,7 +369,7 @@ void TutorialApplication::createScene(void)
 //Create Blocks
   for(int i = 0; i < numBlocks; i++) {
 
-	blocks.push_back(new Block(mSceneMgr,i,2000+(3000*i), multiplayer, server));
+	blocks.push_back(new Block(mSceneMgr,i,2000+(3000*i), multiplayer, isServer));
 	int blockType = blocks.at(i)->getType();
 	//Step
 	if(blockType == 0) {
