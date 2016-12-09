@@ -155,6 +155,7 @@ void TutorialApplication::startBullet()
 	else {
   		runRigidBody->translate(btVector3(-100,0,0));
 	}
+  }
   dynamicsWorld->addRigidBody(runRigidBody);
 
 
