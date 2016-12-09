@@ -15,7 +15,7 @@ public:
 	int id;
 	Type type;
 	int position;
-	bool multiplayer;
+	bool multi;
 	bool server;
 
 	Block();

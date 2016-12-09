@@ -235,16 +235,17 @@ void TutorialApplication::createScene(void)
   /* Start playing */
   SDL_PauseAudio(0);
 //Set Multiplayer
-  multiplayer = false;
+  multiplayer = true;
   isServer = true;
   finished = false;
-  delay = true;
+  delay = false;
+  dodgeTimer = 100;
+  speedTimer = 100;
   //client = false;
   // Initialize ball velicity to 0
   int initX = 0;
   int initY = 0;
   int initZ = 0;
-  pointMultiplier = 1;
 
   while (initX <= 1 ) {
     initX = abs(std::rand() % 9);
@@ -269,7 +270,7 @@ void TutorialApplication::createScene(void)
   flipping = false;
   sliding = false;
   grinding = false;
-  sideRunning = true;
+  sideRunning = false;
   runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
 
   // Initialize the position of the ball
@@ -331,28 +332,32 @@ void TutorialApplication::createScene(void)
   floorEntity->setMaterialName("Examples/CloudySky");
 //Create Finish Line
 
-  /*Ogre::Plane plane2(Ogre::Vector3::UNIT_Z,0);
-  Ogre::MeshManager::getSingleton().createPlane(
-      "finishWall",
-      Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-      plane,
-      1500, 1500, 20, 20,
-      true,
-      1, 5, 5,
-      Ogre::Vector3::UNIT_Y);
-  Ogre::Entity* finishEntity = mSceneMgr->createEntity("finishWall");
-  Ogre::SceneNode* finishNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-  finishNode->attachObject(finishEntity);
-  finishNode->setPosition(10000,5000,5000);
-  //finishEntity->setCastShadows(false);
+	Ogre::SceneNode* blockNode1 = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+	blockNode1->setPosition(175,100,trackLen * 2);
+	blockNode1->setScale(10,100,10);
+	Ogre::Entity* blockEntity1 = mSceneMgr->createEntity("finishLine1", "Paper.mesh");
+	blockEntity1->setCastShadows(true);
+	blockNode1->attachObject(blockEntity1);
 
-  //finishEntity->setMaterialName("Examples/Rockwall");*/
+	Ogre::SceneNode* blockNode2 = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+	blockNode2->setPosition(-175,100,trackLen * 2);
+	blockNode2->setScale(10,100,10);
+	Ogre::Entity* blockEntity2 = mSceneMgr->createEntity("finishLine2", "Paper.mesh");
+	blockEntity2->setCastShadows(true);
+	blockNode2->attachObject(blockEntity2);
+
+	Ogre::SceneNode* blockNode3 = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+	blockNode3->setPosition(0,200,trackLen * 2);
+	blockNode3->setScale(100,10,10);
+	Ogre::Entity* blockEntity3 = mSceneMgr->createEntity("finishLine3", "Paper.mesh");
+	blockEntity3->setCastShadows(true);
+	blockNode3->attachObject(blockEntity3);
 
   mSceneMgr->setShadowTechnique(Ogre::SHADOWTYPE_STENCIL_ADDITIVE);
 //Create Blocks
   for(int i = 0; i < numBlocks; i++) {
 
-	blocks.push_back(new Block(mSceneMgr,i,2000+(2500*i), multiplayer, server));
+	blocks.push_back(new Block(mSceneMgr,i,2000+(3000*i), multiplayer, server));
 	int blockType = blocks.at(i)->getType();
 	if(blockType == 0) {
 		blockShape = new btBoxShape(btVector3(75,25,50));
@@ -412,7 +417,7 @@ void TutorialApplication::createScene(void)
 }
 
 // Game loop code
-void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
+void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {	
   if(delay) {
 	gameTimer = clock()/CLOCKS_PER_SEC;
 	mAnimationState1->setEnabled(false);
@@ -450,16 +455,12 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   mCamera->setPosition(mPos + Ogre::Vector3(0, cameraHeight, -500));
   //mCamera->lookAt(mPos);
 
-  //so you dont accidentally get a trillion points at once
-  if(pointTimer > 0) pointTimer -= fe.timeSinceLastFrame;
-
   // Render
   // Step Simulation
   dynamicsWorld->stepSimulation(1 / 60.f, 10);
 
 //FINISH LINE
   if(mPos.z>=trackLen * 2) {
-     //playerSpeed*=0.995;
        playerSpeed=0;
        runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
        mAnimationState1->setEnabled(false);
@@ -468,7 +469,7 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
        finished = true;
   }
   else if(CLOCKS_PER_SEC != 0){
-    gameTimer = clock()/CLOCKS_PER_SEC -5;
+    gameTimer = clock()/CLOCKS_PER_SEC - 5;
   }
 
   myImageWindow->setText("Time: " + Ogre::StringConverter::toString(gameTimer) + " seconds");
@@ -531,6 +532,10 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   	typedWord2->setText(userInput);
   }
   if(dodgeWord.compare(userInput)==0) {
+      typedWord1->setText("[colour='FF00FF00']" + userInput);
+      typingWord1->setText("[colour='FF00FF00']" + dodgeWord);
+	if(dodgeTimer<=0) {
+		dodgeTimer = 100;
       userInput = "";
       do {
            dodgeWord = wordList[rand()%30];
@@ -559,8 +564,14 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
         }
       }
       wordCount++;
+	}
+	dodgeTimer--;
   }
   else if(speedWord.compare(userInput)==0) {
+      typedWord2->setText("[colour='FF00FF00']" + userInput);
+      typingWord2->setText("[colour='FF00FF00']" + speedWord);
+	if(speedTimer<=0) {
+	speedTimer = 100;
       userInput = "";
       do {
           speedWord = wordList[rand()%30];
@@ -568,6 +579,8 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
       typingWord2->setText(speedWord);
       playerSpeed *= 1.25;
       wordCount++;
+      }
+	speedTimer--;
   }
   else if(mPos.y <=1) {
       runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
@@ -778,14 +791,7 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
 		break;
 	}
 	}	
-  /*if(rvz < 10){
-    runRigidBody->translate(btVector3(0, 0, -1000));
-    playerSpeed /= 2;
-    if(playerSpeed<20)
-	playerSpeed=20;
-    runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
-  }*/
-//MINIMIM SPEED
+//MINIMUM SPEED
     if(playerSpeed<20)
 	playerSpeed=20;
 //PRINTING
@@ -812,10 +818,6 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
 void TutorialApplication::CEGUI_setup(){
   using namespace std;
   using namespace CEGUI;
-  iscore = 0;
-  scoreCount = 0;
-  lifecounter = 3;
-  pointTimer = -1;
   mRenderer = &CEGUI::OgreRenderer::bootstrapSystem();
   CEGUI::ImageManager::setImagesetDefaultResourceGroup("Imagesets");
   CEGUI::Font::setDefaultResourceGroup("Fonts");
@@ -924,60 +926,9 @@ void TutorialApplication::CEGUI_setup(){
   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(typedWord2);
 }
 
-void TutorialApplication::updateScore(){
-  using namespace CEGUI;
-  using namespace std;
-  //Update GUI
-  pointTimer = 0.1;   
-  stringstream ss;
-  iscore+=pointMultiplier;
-  ++scoreCount;
-  ss << iscore;
-  string score = ss.str();
-  myImageWindow->setText("Score: "+ score);
-  //update score multiplier
-  if(scoreCount == 5){
-    pointMultiplier = 2;
-  } 
-  else if(scoreCount == 10){
-    pointMultiplier = 5;
-  } 
-  else if(scoreCount == 20){
-    pointMultiplier = 10;
-  }
-  else if(scoreCount == 39){
-    pointMultiplier = 20;
-  }
-}
-
-bool TutorialApplication::updateLives(){
-  using namespace CEGUI;
-  using namespace std;
-  mSpd = 50;
-  pointMultiplier = 1;
-  scoreCount = 0;
-  if(lifecounter == 3){
-    --lifecounter;
-    lifeWindow3->setVisible(false);
-    return false;
-  }
-  else if(lifecounter == 2){
-    --lifecounter;
-    lifeWindow2->setVisible(false);
-    return false;
-  }
-  else { //(lifecounter == 1)
-    --lifecounter;
-    lifeWindow1->setVisible(false);
-    goWindow->setVisible(true);
-    return true;
-  }
-}
-
 void TutorialApplication::resetGame(){
   using namespace CEGUI;
   using namespace std;
-  lifecounter = 3;
   lifeWindow1->setVisible(false);
   lifeWindow2->setVisible(false);
   lifeWindow3->setVisible(false);
@@ -988,7 +939,6 @@ void TutorialApplication::resetGame(){
   playerSpeed = 35;
   wordCount = 0;
   numTokens = 0;
-  pointMultiplier = 1;
   //mPos = Ogre::Vector3(0,0,0);
   //runNode->setPosition(0,0,0);
   //runRigidBody->translate(btVector3(-1*trans.getOrigin().getX(), -1*trans.getOrigin().getY(), -1*trans.getOrigin().getZ()));
@@ -1114,6 +1064,7 @@ void TutorialApplication::updateClient()
         update = getCurrentTime() - lastUpdate > 16;
     }
 
+	std::cout<<update<<std::endl;
     if (update) {
         if(isServer)
         {
@@ -1185,7 +1136,7 @@ void TutorialApplication::updateClient()
                 IPaddress ip;
                 //std::cout << "Attempting to connect to " << mGUI->currentAddress << "\n";
 		//Set IP ADDRESS
-                SDLNet_ResolveHost(&ip, "128.83.138.76", 1234);
+                SDLNet_ResolveHost(&ip, "128.83.139.76", 1234);
                 server=SDLNet_TCP_Open(&ip);
                 connectionOpened = true;
             }

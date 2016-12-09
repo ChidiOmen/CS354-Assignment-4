@@ -28,7 +28,7 @@ Block::Block(Ogre::SceneManager *newManager, int num, int z, bool m, bool s) {
 		break;
 	}
 	position = z;
-	multiplayer = m;
+	multi = m;
 	server = s;
 	blockManager = newManager;
 	buildBlock();
@@ -88,7 +88,7 @@ void Block::buildBlock() {
 		blockNode3->attachObject(blockEntity3);
 	}
 	else if(type == gap) {
-		if(multiplayer) {
+		if(multi) {
 			blockNode1 = blockManager->getRootSceneNode()->createChildSceneNode();
 			blockNode1->setPosition(150,100,position);
 			blockNode1->setScale(15,100,200);
@@ -134,7 +134,7 @@ void Block::buildBlock() {
 		}
 	}
 	else if(type == rail) {
-		if(multiplayer) {
+		if(multi) {
 			blockNode1 = blockManager->getRootSceneNode()->createChildSceneNode();
 			blockNode1->setPosition(-100,25,position+350);
 			blockNode1->setScale(5,25,400);

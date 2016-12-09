@@ -60,14 +60,11 @@ class TutorialApplication : public BaseApplication
     CEGUI::Window *lifeWindow4;
     CEGUI::Window *lifeWindow5;
     CEGUI::Window *goWindow;
-    CEGUI::Window *countdownWindow;
     bool gameEnd;
+    int dodgeTimer;
     clock_t startTime;
-    int iscore;
-    int lifecounter;
-    Ogre::Real mSpd;
-    Ogre::Real pointTimer;
-    int pointMultiplier;
+    //Ogre::Real mSpd;
+    //Ogre::Real pointTimer;
     int scoreCount;
     int wordCount;
     btScalar rvx;
@@ -95,6 +92,7 @@ class TutorialApplication : public BaseApplication
 
     int playerSpeed;
     int gameTimer;
+    int speedTimer;
 
     CEGUI::Window *typingWord1;
     CEGUI::Window *typingWord2;
@@ -107,8 +105,6 @@ class TutorialApplication : public BaseApplication
     virtual void createViewports();
     virtual void gameStep(const Ogre::FrameEvent& fe);
     virtual void CEGUI_setup();
-    virtual void updateScore();
-    virtual bool updateLives();
     virtual void resetGame();
     virtual void updateClient();
     //virtual bool mouseMoved(const OIS::MouseEvent &me);
