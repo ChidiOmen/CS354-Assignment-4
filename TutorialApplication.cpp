@@ -207,8 +207,8 @@ void TutorialApplication::createScene(void)
   isServer = true;
   finished = false;
   delay = false;
-  dodgeTimer = 100;
-  speedTimer = 100;
+  dodgeTimer = 50;
+  speedTimer = 50;
   startBullet();
   CEGUI_setup();
   // Start channel
@@ -551,11 +551,12 @@ startTime = clock();
       typedWord1->setText("[colour='FF00FF00']" + userInput);
       typingWord1->setText("[colour='FF00FF00']" + dodgeWord);
 if(dodgeTimer<=0) {
-dodgeTimer = 100;
+dodgeTimer = 50;
       userInput = "";
+      string temp = dodgeWord;
       do {
            dodgeWord = wordList_test[rand()%20];
-      }while(speedWord.compare(dodgeWord)==0);
+      }while(speedWord.compare(dodgeWord)==0 && dodgeWord.compare(temp)==0);
       typingWord1->setText(dodgeWord);
       //runRigidBody->setLinearVelocity(btVector3(0, 50, playerSpeed));
       if(runRigidBody) {
@@ -587,19 +588,20 @@ dodgeTimer--;
       typedWord2->setText("[colour='FF00FF00']" + userInput);
       typingWord2->setText("[colour='FF00FF00']" + speedWord);
 if(speedTimer<=0) {
-speedTimer = 100;
+speedTimer = 50;
       userInput = "";
+      string temp = speedWord;
       do {
           speedWord = wordList[rand()%30];
-      }while(speedWord.compare(dodgeWord)==0);
+      }while(speedWord.compare(dodgeWord)==0 && speedWord.compare(temp)==0);
       typingWord2->setText(speedWord);
       playerSpeed *= 1.25;
       wordCount++;
       }
-speedTimer--;
-  }
   else if(mPos.y <=1) {
       runRigidBody->setLinearVelocity(btVector3(0, 0, playerSpeed));
+  }
+speedTimer--;
   }
 //Flipping
   if(flipping) {
@@ -1008,6 +1010,18 @@ void TutorialApplication::CEGUI_setup(){
   typedWord2->setPosition(CEGUI::UVector2(CEGUI::UDim(0.75,0),CEGUI::UDim(0.35,0)));
   typedWord2->setSize(USize(UDim(0.1,0),UDim(0.04,0)));
   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(typedWord2);
+
+  /*dodgeInstr = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","dodgeInstr");
+  dodgeInstr->setPosition(CEGUI::UVector2(CEGUI::UDim(0.1,0),CEGUI::UDim(0.15,0)));
+  dodgeInstr->setSize(USize(UDim(0.25,0),UDim(0.04,0)));
+  dodgeInstr->setText("Type this word to dodge obstacles");
+  CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(dodgeInstr);
+
+  fasterInstr = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText","fasterInstr");
+  fasterInstr->setPosition(CEGUI::UVector2(CEGUI::UDim(0.7,0),CEGUI::UDim(0.15,0)));
+  fasterInstr->setSize(USize(UDim(0.25,0),UDim(0.04,0)));
+  fasterInstr->setText("Type this word to run faster");
+  CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(fasterInstr);*/
 }
 
 void TutorialApplication::resetGame(){

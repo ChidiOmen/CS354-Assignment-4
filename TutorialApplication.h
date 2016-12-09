@@ -98,6 +98,8 @@ class TutorialApplication : public BaseApplication
     CEGUI::Window *typingWord2;
     CEGUI::Window *typedWord1; 
     CEGUI::Window *typedWord2; 
+    //CEGUI::Window *dodgeInstr;
+    //CEGUI::Window *fasterInstr; 
 
 
     virtual void createScene(void);
