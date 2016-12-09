@@ -759,7 +759,7 @@ void TutorialApplication::gameStep(const Ogre::FrameEvent& fe) {
   				/*Ogre::Vector3 src = runNode->getOrientation() * Ogre::Vector3::UNIT_Z;
   				Ogre::Quaternion quat = src.getRotationTo(Ogre::Vector3(sqrt(0.5),0,0));
   				runNode->rotate(quat);*/
-				if(isServer) 
+				if(isServer) { 
 					runNode->setOrientation(Ogre::Quaternion((Ogre::Radian)PI/2, Ogre::Vector3(0, -1, 0)));
   					mAnimationState1->setEnabled(true);
 				}
